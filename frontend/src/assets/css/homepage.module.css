@@ -1,0 +1,76 @@
+.main-page {
+    color: var(--color-text-primary);
+    background-color: var(--color-background-primary);
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    transition: color 0.3s;
+}
+
+.main-content {
+    max-width: 1200px;
+    margin: auto auto;
+    padding: 40px 20px;
+    text-align: center;
+}
+
+.main-logo-area {
+    margin-bottom: 30px;
+}
+
+.large-logo {
+    width: 300px;
+    height: auto;
+}
+
+.main-search-bar {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 50px;
+}
+
+.main-search-input {
+    width: 60%;
+    max-width: 500px;
+    padding: 12px 15px;
+    background-color: var(--color-component-bg, white);
+    color: var(--color-text-primary);
+    border: 2px solid var(--color-accent-primary);
+    border-radius: 6px 0 0 6px;
+    font-size: 16px;
+    outline: none;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.main-search-button {
+    padding: 12px 20px;
+    background-color: var(--color-accent-primary);
+    color: var(--color-accent-text);
+    border: none;
+    border-radius: 0 6px 6px 0;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.recommended-items-section h2 {
+    margin-bottom: 25px;
+    font-size: 24px;
+    color: var(--color-homepage-title);
+    transition: color 0.3s;
+}
+
+.item-list {
+    display: flex;
+    justify-content: space-around;
+    gap: 15px;
+}
+
+.item-card {
+    flex: 1;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid var(--color-card-border);
+    background-color: var(--color-card-bg);
+    transition: background-color 0.3s, border-color 0.3s;
+}

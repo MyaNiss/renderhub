@@ -1,0 +1,22 @@
+.ql-editor {
+    min-height: 400px;
+}
+
+.ql-editor{
+    background-color: var(--color-component-bg);
+    color: var(--color-text-primary);
+    border-color: var(--color-component-border) !important;
+}
+
+.ql-toolbar.ql-snow {
+    background-color: var(--color-component-bg);
+    border-color: var(--color-component-border) !important;
+}
+
+.ql-toolbar.ql-snow .ql-stroke,
+.ql-toolbar.ql-snow .ql-fill,
+.ql-snow .ql-picker-label {
+    color: var(--color-text-primary);
+    fill: var(--color-accent-text);
+    stroke: var(--color-text-primary);
+}

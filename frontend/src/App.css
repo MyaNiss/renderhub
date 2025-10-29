@@ -1,0 +1,135 @@
+/* 1. 레이아웃 설정  */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.site-wrap {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.content-wrap {
+  margin: 0;
+  min-height: 100vh;
+  padding: 0;
+  flex-grow: 1;
+
+  background-color: var(--color-background-primary);
+  transition: background-color 0.3s;
+}
+
+/* 2. 전역 기본 스타일 및 CSS 변수 정의 */
+
+:root {
+  --color-background-primary: #f0f2f5;
+  --color-text-primary: #333;
+
+  --color-link-primary: inherit;
+  --color-link-accent: #3498db;
+
+  --color-accent-primary: #3498db;
+  --color-accent-text: white;
+
+  --color-homepage-title: #2c3e50;
+  --color-card-bg: #f9f9f9;
+  --color-card-border: #ddd;
+
+  --color-component-bg: #ffffff;
+  --color-component-border: #ddd;
+
+  --color-shadow-light: rgba(0, 0, 0, 0.05);
+  --color-shadow-medium: rgba(0, 0, 0, 0.1);
+  --color-danger: red;
+
+  --color-table-bg: #ffffff;
+  --color-table-hover-bg: #f5f5f5;
+  --color-table-border: #ddd;
+
+  --color-scroll-btn: #2ecc71;
+
+  --color-footer-bg: #2c3e50;
+  --color-footer-text: #ecf0f1;
+  --color-footer-link: #bdc3c7;
+  --color-footer-bottom-text: #95a5a6;
+  --color-footer-border-low-opacity: rgba(255, 255, 255, 0.1);
+}
+
+body {
+  background-color: var(--color-background-primary);
+  color: var(--color-text-primary);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* 3. 다크 모드 변수 재정의*/
+
+body.dark-theme {
+  --color-background-primary: #1e272e;
+  --color-text-primary: #f4f1f1;
+
+  --color-link-primary: #89cff0;
+  --color-link-accent: #89cff0;
+
+  --color-accent-primary: #89cff0;
+  --color-accent-text: #1e272e;
+
+  --color-homepage-title: #f0f0f0;
+  --color-card-bg: #2c3e50;
+  --color-card-border: #444;
+
+  --color-component-bg: #2c3e50;
+  --color-component-border: #444;
+
+  --color-shadow-light: rgba(0, 0, 0, 0.5);
+  --color-shadow-medium: rgba(0, 0, 0, 0.7);
+  --color-danger: #ff5757;
+
+  --color-table-bg: #2c3e50;
+  --color-table-hover-bg: #34495e;
+  --color-table-border: #444;
+
+  --color-scroll-btn: #3498db;
+
+  --color-footer-bg: #1a1a1a;
+  --color-footer-text: #f0f0f0;
+  --color-footer-link: #aeb6bf;
+  --color-footer-bottom-text: #bdc3c7;
+  --color-footer-border-low-opacity: rgba(0, 0, 0, 0.2);
+}
+
+body.dark-theme a {
+  color: var(--color-link-primary);
+}
+
+body.dark-theme .table {
+  --bs-table-bg: var(--color-table-bg);
+  --bs-table-color: var(--color-text-primary);
+  border-color: var(--color-table-border);
+  border-top: 1px solid var(--color-table-border);
+}
+
+body.dark-theme .table-hover > tbody > tr:hover {
+  --bs-table-hover-bg: var(--color-table-hover-bg);
+  color: var(--color-text-primary);
+}
+
+body.dark-theme .table thead {
+  border-bottom: 2px solid var(--color-table-border);
+}
+
+body.dark-theme .table thead th {
+  background-color: var(--color-table-bg);
+  color: var(--color-text-primary);
+  border-color: var(--color-table-border);
+}
+
+body.dark-theme .table > :not(caption) > * > * {
+  border-color: var(--color-table-border);
+}
+
+body.dark-theme .board-list-section {
+  background-color: var(--color-component-bg);
+  border: 1px solid var(--color-component-border);
+}

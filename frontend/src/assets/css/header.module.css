@@ -1,0 +1,176 @@
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+
+    border-bottom: 1px solid var(--color-component-border);
+    background-color: var(--color-component-bg);
+
+    box-shadow: 0 2px 4px var(--color-shadow-light, rgba(0,0,0,0.05));
+    gap: 20px;
+    transition: background-color 0.3s, border-bottom-color 0.3s, box-shadow 0.3s;
+}
+
+.leftSection {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-shrink: 0;
+}
+
+.searchContainer {
+    display: flex;
+    flex-grow: 1;
+    max-width: 500px;
+
+    margin: 0 auto;
+
+    flex-shrink: 1;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: 900;
+    margin-right: 30px;
+}
+
+.logo a {
+    text-decoration: none;
+    color: var(--color-text-primary);
+    transition: color 0.3s;
+}
+
+.nav {
+    display: flex;
+    gap: 30px;
+    flex-shrink: 0;
+}
+
+.menuItem {
+    text-decoration: none;
+    color: var(--color-text-primary);
+    padding: 5px 0;
+    font-size: 16px;
+    font-weight: 600;
+    transition: color 0.2s;
+}
+
+.menuItem:hover {
+    color: var(--color-link-accent);
+}
+
+.searchInput {
+    padding: 10px 15px;
+    border: 1px solid var(--color-component-border);
+    border-radius: 20px 0 0 20px;
+    outline: none;
+    width: 100%;
+    font-size: 14px;
+
+    background-color: var(--color-component-bg);
+    color: var(--color-text-primary);
+    transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+}
+
+.searchButton {
+    padding: 10px 15px;
+    background-color: var(--color-accent-primary);
+    color: var(--color-accent-text);
+    border: 1px solid var(--color-accent-primary);
+    border-radius: 0 20px 20px 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+}
+
+.searchButton:hover {
+    filter: brightness(0.9);
+}
+
+.authContainer {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.authButton {
+    text-decoration: none;
+    color: var(--color-text-primary);
+    padding: 5px 10px;
+    transition: color 0.3s;
+}
+.authButton:hover {
+    color: var(--color-link-accent);
+}
+
+
+.registerButton {
+    font-weight: bold;
+    color: var(--color-link-accent);
+}
+
+.profileDropdownContainer {
+    position: relative;
+    display: inline-block;
+}
+
+.profileButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    color: var(--color-text-primary);
+    padding: 0;
+}
+
+.caretIcon {
+    margin-left: 5px;
+}
+
+.dropdownMenu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+
+    background-color: var(--color-component-bg);
+    border: 1px solid var(--color-component-border);
+
+    border-radius: 4px;
+    z-index: 100;
+    min-width: 150px;
+    box-shadow: 0 4px 8px var(--color-shadow-medium, rgba(0, 0, 0, 0.1));
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.dropdownItem {
+    display: block;
+    padding: 10px 15px;
+    text-decoration: none;
+    color: var(--color-text-primary);
+    white-space: nowrap;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.dropdownItem:hover {
+    background-color: var(--color-table-hover-bg, #f0f0f0);
+}
+
+.boldItem {
+    font-weight: bold;
+    color: var(--color-link-accent);
+}
+
+.logoutButton {
+    color: var(--color-danger, red);
+}
+
+.dropdownDivider {
+    border-top: 1px solid var(--color-component-border);
+}
