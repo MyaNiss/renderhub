@@ -18,6 +18,4 @@ public class UserRoleEntity extends BaseEntity {
 
     private String roleName;
 
-    @Column( columnDefinition = "CHAR(1)")
-    private String useYn;
 }

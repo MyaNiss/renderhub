@@ -1,5 +1,6 @@
 package app.back.code.config;
 
+import app.back.code.common.handler.CustomLogoutHandler;
 import app.back.code.common.utils.JWTUtils;
 import app.back.code.filter.CustomLogoutFilter;
 import app.back.code.filter.JWTFilter;
@@ -25,6 +26,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -40,6 +42,7 @@ public class SecurityConfig {
 
     private final UserServiceDetails serviceDetails;
     private final JWTUtils jwtUtils;
+    private final LogoutSuccessHandler CustomLogoutHandler;
 
     //시큐리티 우선 무시하기
     @Bean
@@ -83,7 +86,8 @@ public class SecurityConfig {
                 .logout(logout ->
                         logout.logoutRequestMatcher(
                                 PathPatternRequestMatcher.withDefaults()
-                                        .matcher(HttpMethod.GET, "/api/v1/logout")));
+                                        .matcher(HttpMethod.GET, "/api/v1/logout"))
+                                .logoutSuccessHandler(CustomLogoutHandler));
     
             return http.build();
     }
@@ -125,7 +129,7 @@ public class SecurityConfig {
     ));
        //메서드 설정
        config.setAllowedMethods(List.of("GET",  "POST", "DELETE", "PUT", "PATCH",  "OPTIONS"));
-       config.setAllowedOrigins(List.of("http://localhost:3001", "http://localhost:4000"));
+       config.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:4000"));
        config.setAllowCredentials(true);
        config.setMaxAge(3600L);
 

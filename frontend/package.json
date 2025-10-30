@@ -13,7 +13,7 @@
     "@hookform/resolvers": "^5.2.2",
     "@tanstack/react-query": "^5.90.5",
     "@tanstack/react-query-devtools": "^5.90.2",
-    "axios": "^1.12.2",
+    "axios": "^1.13.1",
     "bootstrap": "^5.3.8",
     "immer": "^10.2.0",
     "quill-image-resize-module-react": "^3.0.0",

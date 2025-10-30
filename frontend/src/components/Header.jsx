@@ -5,13 +5,29 @@ import ProfileDropdown from "./ProfileDropdown.jsx";
 import {useAuthStore} from "../store/authStore.jsx";
 import useSearch from "../customHook/useSearch.jsx";
 import {useLocation} from "react-router";
+import {accountAPI} from "../service/accountService.jsx";
 
 const Header = () => {
 
     const location = useLocation();
     const isHomePage = location.pathname === "/";
+    const {logout : storeLogout} = useAuthStore();
 
-    const logout = useAuthStore((state) => state.logout);
+    const logout = async () => {
+        try {
+            const result = await accountAPI.logout();
+
+
+            if(result.resultCode === 200){
+                console.log("로그아웃 성공");
+                storeLogout();
+            }else{
+                alert('로그아웃 실패');
+            }
+        }catch (error) {
+            console.error(error);
+        }
+    }
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated());
     const userName = useAuthStore((state) => state.userName);
 

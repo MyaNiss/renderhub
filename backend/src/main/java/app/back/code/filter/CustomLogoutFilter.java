@@ -40,8 +40,7 @@ public class CustomLogoutFilter  extends GenericFilterBean{
 
 
         //경로에 로그아웃이 없다면
-        if(!requestURI.contains("logout") ||
-                !requestMethod.equalsIgnoreCase("POST")){
+        if(!requestURI.contains("logout")) {
 
             chain.doFilter(request, response);
             return;
@@ -51,56 +50,26 @@ public class CustomLogoutFilter  extends GenericFilterBean{
         Cookie[] cookies = request.getCookies();
 
         response.setContentType("application/json");
-        
-        try{
 
-            if(cookies == null) {
-                throw new IllegalStateException("쿠기에 정보 없음");
-            }
+        if(cookies == null) {
+            chain.doFilter(request, response);
+            return;
+        }
 
-            refreshToken = Arrays.stream(cookies)
-                            .filter(cookie -> cookie.getName().equals("refresh"))
-                            .map(Cookie::getValue)
-                            .findAny().orElseThrow(()-> new IllegalStateException("없음"));
+        refreshToken = Arrays.stream(cookies)
+                        .filter(cookie -> cookie.getName().equals("refresh"))
+                        .map(Cookie::getValue)
+                        .findAny().orElseThrow(()-> new IllegalStateException("없음"));
 
-            if( jwtUtils.getExpired(refreshToken)) {
-                throw new IllegalStateException("refresh token 유효기간 지남 ");
-            }
-
-            String category = jwtUtils.getCategory(refreshToken);
-
-            if(!category.equals("refresh") ){
-                throw new IllegalStateException("맞지않는 키입니다.,");
-            }
-
-
+        if(refreshToken != null && !refreshToken.isEmpty()) {
             //Refresh 토큰 Cookie 값 0
             Cookie cookie = new Cookie("refresh", null);
             cookie.setMaxAge(0);
             cookie.setPath("/");
-
             response.addCookie(cookie);
-            response.setStatus(HttpServletResponse.SC_OK);
-
-            JSONObject obj = new JSONObject();
-           
-            obj.put("resultMsg", "200");
-            obj.put("status", HttpServletResponse.SC_OK);
-
-           
-            response.getWriter().write(obj.toString());
-
-        }catch(Exception e) {
-            
-            e.printStackTrace();
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            JSONObject obj = new JSONObject();
-            obj.put("resultMsg", "FAIL");
-            obj.put("status", HttpServletResponse.SC_BAD_REQUEST);
-              
-            response.getWriter().write(obj.toString());
-
         }
+
+        chain.doFilter(request, response);
 
     }
 

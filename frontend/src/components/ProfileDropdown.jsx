@@ -11,6 +11,7 @@ const ProfileDropdown = ({username, onLogout}) => {
     const dropdownItems = [
         { label : '마이페이지', href: '/user/mypage', isBold: false },
         { label : '장바구니', href: '/transaction/cart', isBold: false },
+        { label : '거래 내역', href: '/transaction/list', isBold: false},
         { label : '판매 등록', href: '/post/write', isBold: false },
         { label : '개인정보 관리', href: '/user/profile', isBold: false },
     ];
