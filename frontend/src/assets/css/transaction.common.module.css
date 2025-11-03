@@ -1,0 +1,107 @@
+.pageContainer {
+    padding: 20px;
+    max-width: 800px;
+    margin: auto;
+    color: var(--color-text-primary);
+}
+
+.section {
+    background-color: var(--color-component-bg);
+    border: 1px solid var(--color-component-border);
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px var(--color-shadow-light);
+}
+
+.sectionHeader {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: var(--color-text-primary);
+}
+
+.divider {
+    margin: 15px 0;
+    border: none;
+    border-top: 1px solid var(--color-component-border);
+}
+
+.checkoutButton {
+    padding: 15px 30px;
+    font-size: 1.2em;
+    cursor: pointer;
+    background-color: var(--color-accent-primary);
+    color: var(--color-accent-text);
+    border: none;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.checkoutButton:disabled {
+    background-color: #ccc;
+    color: #666;
+    cursor: not-allowed;
+}
+
+.totalPriceText {
+    font-size: 1.5em;
+    font-weight: bolder;
+    color: var(--color-accent-primary);
+    margin-top: 10px;
+}
+
+.totalSummary {
+    text-align: right;
+    margin-top: 30px;
+    color: var(--color-text-primary);
+}
+
+.addressInput {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    box-sizing: border-box;
+    background-color: var(--color-component-bg);
+    color: var(--color-text-primary);
+    border: 1px solid var(--color-component-border);
+    border-radius: 3px;
+}
+
+.orderItem {
+    background-color: var(--color-component-bg);
+    border: 1px solid var(--color-component-border);
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+}
+
+.detailButton {
+    padding: 8px 15px;
+    margin-top: 10px;
+    background-color: var(--color-link-accent);
+    color: var(--color-accent-text);
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.statusText {
+    font-weight: bold;
+    color: var(--color-accent-primary);
+}
+
+.backButton {
+    padding: 10px 15px;
+    font-size: 1em;
+    cursor: pointer;
+    background-color: var(--color-component-bg);
+    color: var(--color-text-primary);
+    border: 1px solid var(--color-component-border);
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.headerContainer {
+    display: flex;
+    flex-direction: column;
+}

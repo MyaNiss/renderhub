@@ -4,14 +4,14 @@ import {userAPI} from "../service/userService.jsx";
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 
 
-export const useUser = () => {
+export const useUser = (userId, isPublic = true) => {
     const queryClient = useQueryClient();
 
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated());
 
     const getUserProfile = useQuery({
-        queryKey: ['userProfile'],
-        queryFn: userAPI.getUser,
+        queryKey: ['userProfile', userId, isPublic],
+        queryFn: () => userAPI.getUser(userId, isPublic),
         enabled: isAuthenticated
     });
 

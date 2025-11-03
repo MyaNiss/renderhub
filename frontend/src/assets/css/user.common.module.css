@@ -13,6 +13,15 @@
     transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s;
 }
 
+.userPageContainer {
+    max-width: 1200px;
+    width: 95%;
+    padding: 20px 0;
+    box-shadow: none;
+    border: none;
+    background-color: transparent;
+}
+
 .formTitle {
     color: var(--color-homepage-title);
     font-size: 2rem;
@@ -20,6 +29,10 @@
     margin-bottom: 25px;
     padding-bottom: 10px;
     border-bottom: 2px solid var(--color-component-border);
+    /* Flex를 사용하여 배지 정렬 */
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 /* 2. 폼 필드 스타일 */
@@ -80,7 +93,7 @@
     cursor: pointer;
     font-weight: 700;
     font-size: 0.95rem;
-    transition: background-color 0.2s, color 0.2s, opacity 0.2s;
+    transition: all 0.2s;
 }
 
 .primaryButton {
@@ -118,97 +131,21 @@
     margin-top: 30px;
 }
 
-/* 4. 기타 스타일 (예: 알림, 구분선) */
+.sectionHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.editButton {
+    height: fit-content;
+}
+
 
 .divider {
     height: 1px;
     background-color: var(--color-component-border);
     margin: 20px 0;
-}
-
-.dangerZone {
-    margin-top: 40px;
-    padding: 20px;
-    border: 2px dashed var(--color-danger);
-    border-radius: 8px;
-    background-color: rgba(255, 0, 0, 0.05);
-}
-
-body.dark-theme .dangerZone {
-    background-color: rgba(255, 87, 87, 0.1);
-}
-
-.deleteButton {
-    composes: commonButton;
-    background-color: var(--color-danger);
-    color: var(--color-accent-text);
-}
-
-.deleteButton:hover:not(:disabled) {
-    background-color: darkred;
-}
-
-.radioGroup {
-    display: flex;
-    gap: 20px;
-    align-items: center;
-    padding-top: 5px;
-}
-
-.radioLabel {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    color: var(--color-text-primary);
-}
-
-.radioInput {
-    margin-right: 8px;
-    width: 16px;
-    height: 16px;
-    accent-color: var(--color-accent-primary);
-}
-
-.subText {
-    color: var(--color-text-primary);
-    margin-bottom: 30px;
-    font-size: 0.9rem;
-}
-
-.modalOverlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.7);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-}
-
-.modalContent {
-    max-width: 500px;
-    width: 90%;
-    padding: 30px;
-    background-color: var(--color-component-bg);
-    border-radius: 8px;
-    box-shadow: 0 4px 8px var(--color-shadow-medium);
-    max-height: 90vh;
-    overflow-y: auto;
-    position: relative;
-}
-
-.modalCloseButton {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: var(--color-text-primary);
 }
 
 .pageWrapper {
@@ -217,6 +154,20 @@ body.dark-theme .dangerZone {
     align-items: flex-start;
 }
 
+.loadingMessage, .errorMessage {
+    text-align: center;
+    padding: 50px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    min-height: 200px;
+}
+
+.errorMessage {
+    color: var(--color-danger);
+}
+
+
 .idHighlight {
     margin-bottom: 30px;
     padding: 15px;
@@ -224,32 +175,94 @@ body.dark-theme .dangerZone {
     background-color: var(--color-card-bg);
 }
 
-.idText {
-    font-size: 1.1rem;
-    font-weight: bold;
-    color: var(--color-accent-primary);
-}
-
-.passwordGroup {
-    border-bottom: 1px solid var(--color-component-border);
-    padding-bottom: 20px;
-    margin-bottom: 20px;
-}
-
-.passwordButtonContainer {
+.sectionHeader {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 10px;
 }
 
-.passwordReadOnly {
+.sectionTitle {
+    font-size: 1.5rem !important;
+    margin-bottom: 10px !important;
+}
+
+.editButton {
+    height: fit-content;
+}
+
+.bioContent {
+    min-height: 100px;
+    white-space: pre-line;
+}
+
+.noPostsMessage {
+    text-align: center;
+    color : var(--color-text-primary);
+}
+
+.postCardLayout {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px !important;
+}
+
+.postContent {
     flex-grow: 1;
-    background-color: transparent;
-    padding-right: 0;
+    padding-left: 20px;
 }
 
-.buttonGroupEnd {
-    justify-content: flex-end;
-    margin-top: 30px;
+.postTitle {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--color-text-primary);
+    margin-bottom: 4px;
+}
+
+.splitLayoutWrapper {
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+    padding: 0 20px;
+}
+
+.splitColumn {
+    flex: 1 1 45%;
+    min-width: 300px;
+}
+
+.profileInfoSection {
+    border: 1px solid var(--color-component-border);
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 40px;
+    background-color: var(--color-component-bg);
+}
+
+.boardListGrid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+}
+
+.postListGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.pageButtonGroup {
+    margin-top: 40px;
+    padding: 0 20px;
+}
+
+.postCardLink {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.postCardHighlight {
+    padding: 10px;
+    border-radius: 8px;
+    border-left: 4px solid var(--color-accent-primary);
 }

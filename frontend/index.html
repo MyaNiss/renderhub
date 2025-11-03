@@ -5,6 +5,18 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>renderhub-frontend</title>
+    <script>
+      (function() {
+        const storedMode = localStorage.getItem('dark-mode');
+
+        if (storedMode === 'true') {
+          document.body.classList.add('dark-theme');
+        } else if (storedMode === null && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          // 저장된 값이 없으면 시스템 설정을 따릅니다.
+          document.body.classList.add('dark-theme');
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

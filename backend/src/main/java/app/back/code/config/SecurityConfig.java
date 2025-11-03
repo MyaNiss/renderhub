@@ -1,6 +1,6 @@
 package app.back.code.config;
 
-import app.back.code.common.handler.CustomLogoutHandler;
+//import app.back.code.common.handler.CustomLogoutHandler;
 import app.back.code.common.utils.JWTUtils;
 import app.back.code.filter.CustomLogoutFilter;
 import app.back.code.filter.JWTFilter;
@@ -42,7 +42,7 @@ public class SecurityConfig {
 
     private final UserServiceDetails serviceDetails;
     private final JWTUtils jwtUtils;
-    private final LogoutSuccessHandler CustomLogoutHandler;
+    //private final LogoutSuccessHandler CustomLogoutHandler;
 
     //시큐리티 우선 무시하기
     @Bean
@@ -86,8 +86,8 @@ public class SecurityConfig {
                 .logout(logout ->
                         logout.logoutRequestMatcher(
                                 PathPatternRequestMatcher.withDefaults()
-                                        .matcher(HttpMethod.GET, "/api/v1/logout"))
-                                .logoutSuccessHandler(CustomLogoutHandler));
+                                        .matcher(HttpMethod.GET, "/api/v1/logout")));
+                                //.logoutSuccessHandler(CustomLogoutHandler));
     
             return http.build();
     }

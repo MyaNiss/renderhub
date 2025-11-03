@@ -11,6 +11,10 @@ import CustomerServiceWrite from "../pages/customerservice/CustomerServiceWrite.
 import CustomerServiceUpdate from "../pages/customerservice/CustomerServiceUpdate.jsx";
 import UserProfile from "../pages/user/UserProfile.jsx";
 import UserProfileUpdate from "../pages/user/UserProfileUpdate.jsx";
+import UserPage from "../pages/user/UserPage.jsx";
+import TransactionBuy from "../pages/transaction/TransactionBuy.jsx";
+import OrderHistory from "../pages/transaction/OrderHistory.jsx";
+import OrderDetail from "../pages/transaction/OrderDetail.jsx";
 
 export const router = createBrowserRouter(
     [
@@ -25,14 +29,10 @@ export const router = createBrowserRouter(
                 {
                     path: '/user',
                     children: [
-                        // {
-                        //     path: 'page',
-                        //     element: <UserPage />
-                        // },
-                        // {
-                        //     path: 'page/update',
-                        //     element: <UserPageUpdate />
-                        // },
+                        {
+                            path: 'page/:targetUserId',
+                            element: <UserPage />
+                        },
                         {
                             path: 'profile',
                             element: <UserProfile />
@@ -40,6 +40,23 @@ export const router = createBrowserRouter(
                         {
                             path: 'profile/update',
                             element: <UserProfileUpdate />
+                        }
+                    ]
+                },
+                {
+                    path: '/transaction',
+                    children: [
+                        {
+                            path: 'list',
+                            element: <OrderHistory />
+                        },
+                        {
+                            path: ':id',
+                            element: <OrderDetail/>
+                        },
+                        {
+                            path: 'buy',
+                            element: <TransactionBuy />
                         }
                     ]
                 },

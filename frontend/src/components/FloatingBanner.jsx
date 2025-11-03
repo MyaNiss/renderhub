@@ -30,7 +30,6 @@ const FloatingBanner = () => {
 
         const handleScroll = () => {
             const footerRect = footer.getBoundingClientRect();
-            const bannerHeight = banner.offsetHeight + 30;
 
             if(footerRect.top < window.innerHeight){
                 const overlap = window.innerHeight - footerRect.top;

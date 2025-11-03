@@ -2,8 +2,16 @@ import api from "../api/apiClient.jsx";
 
 
 export const userAPI = {
-    getUser: async () => {
-        const res = await api.get('/api/v1/user/profile');
+    getUser: async (userId, isPublic = true) => {
+        let url;
+
+        if(isPublic){
+            url = `/api/users/${userId}/public`;
+        } else {
+            url = `/api/users/${userId}`;
+        }
+
+        const res = await api.get(url);
         return res.data;
     },
 

@@ -13,7 +13,7 @@ const UserProfile = () => {
     const userId = useAuthStore((state) => state.userId);
     const clearAuth = useAuthStore((state) => state.clearAuth);
 
-    const {getUserProfile, deleteUserMutation} = useUser();
+    const {getUserProfile, deleteUserMutation} = useUser(userId, false);
 
     const {data: userData} = getUserProfile;
 

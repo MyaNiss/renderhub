@@ -1,16 +1,25 @@
 import React, {useCallback, useState} from 'react';
 import style from '../assets/css/header.module.css';
+import {useAuthStore} from "../store/authStore.jsx";
 
-const ProfileDropdown = ({username, onLogout}) => {
+const ProfileDropdown = ({username, onLogout, openCart}) => {
     const [isOpen, setIsOpen ] = useState(false);
+    const currentUserId = useAuthStore((state) => state.userId);
 
     const toggleDropdown = useCallback(() => {
         setIsOpen(prevIsOpen => !prevIsOpen);
     }, []);
 
+    const handleCartClick = (e) => {
+        if(openCart) {
+            openCart();
+        }
+        setIsOpen(false);
+    }
+
     const dropdownItems = [
-        { label : '마이페이지', href: '/user/mypage', isBold: false },
-        { label : '장바구니', href: '/transaction/cart', isBold: false },
+        { label : '마이페이지', href: `/user/page/${currentUserId}`, isBold: false },
+        // { label : '장바구니', href: '/transaction/cart', isBold: false },
         { label : '거래 내역', href: '/transaction/list', isBold: false},
         { label : '판매 등록', href: '/post/write', isBold: false },
         { label : '개인정보 관리', href: '/user/profile', isBold: false },
@@ -22,7 +31,7 @@ const ProfileDropdown = ({username, onLogout}) => {
                 onClick={toggleDropdown}
                 className={style.profileButton}
             >
-                {username} {/*< className={style.caretIcon} />*/}
+                {username}
             </button>
 
             {isOpen && (
@@ -36,6 +45,13 @@ const ProfileDropdown = ({username, onLogout}) => {
                             {item.label}
                         </a>
                     ))}
+                    <div className={style.dropdownDivider} />
+                    <button
+                        onClick={handleCartClick}
+                        className={style.dropdownItem}
+                    >
+                        장바구니
+                    </button>
                     <div className={style.dropdownDivider} />
                     <button
                         onClick={onLogout}

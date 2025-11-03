@@ -14,7 +14,7 @@ html, body {
 .content-wrap {
   margin: 0;
   min-height: 100vh;
-  padding: 0;
+  padding: 60px 80px;
   flex-grow: 1;
 
   background-color: var(--color-background-primary);
@@ -132,4 +132,8 @@ body.dark-theme .table > :not(caption) > * > * {
 body.dark-theme .board-list-section {
   background-color: var(--color-component-bg);
   border: 1px solid var(--color-component-border);
+}
+
+.no-transition * {
+  transition: none !important;
 }

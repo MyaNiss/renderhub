@@ -36,7 +36,7 @@ const UserProfileUpdate = () => {
     const navigate = useNavigate();
 
     const { getUserProfile, updateUserMutation } = useUser();
-    const { data: userData} = getUserProfile;
+    const { data: userData } = getUserProfile;
 
     const {
         register,
