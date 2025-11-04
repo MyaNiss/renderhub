@@ -15,6 +15,10 @@ import UserPage from "../pages/user/UserPage.jsx";
 import TransactionBuy from "../pages/transaction/TransactionBuy.jsx";
 import OrderHistory from "../pages/transaction/OrderHistory.jsx";
 import OrderDetail from "../pages/transaction/OrderDetail.jsx";
+import PostDetail from "../pages/post/PostDetail.jsx";
+import PostWrite from "../pages/post/PostWrite.jsx";
+import PostList from "../pages/post/PostList.jsx";
+import PostUpdate from "../pages/post/PostUpdate.jsx";
 
 export const router = createBrowserRouter(
     [
@@ -99,6 +103,27 @@ export const router = createBrowserRouter(
                         {
                             path: 'update/:id',
                             element: <CustomerServiceUpdate/>
+                        }
+                    ]
+                },
+                {
+                    path: '/post',
+                    children: [
+                        {
+                            index: true,
+                            element: <PostList/>
+                        },
+                        {
+                            path: 'write',
+                            element: <PostWrite/>
+                        },
+                        {
+                            path: ':id',
+                            element: <PostDetail/>
+                        },
+                        {
+                            path: 'update/:id',
+                            element: <PostUpdate/>
                         }
                     ]
                 }
