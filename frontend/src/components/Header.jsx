@@ -45,7 +45,7 @@ const Header = () => {
 
     const {getCartItems} = useCart(isCartOpen);
 
-    const cartItems = getCartItems.data;
+    const cartItems = getCartItems.data ?? [];
 
     const {searchTerm, setSearchTerm, handleSearch} = useSearch();
 

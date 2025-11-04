@@ -2,7 +2,7 @@ import style from '../assets/css/cart.module.css';
 import {useNavigate} from "react-router";
 import {useCart} from "../customHook/useCart.jsx";
 
-const Cart = ({isOpen, onClose, cartItems}) => {
+const Cart = ({isOpen, onClose, cartItems = []}) => {
     const navigate = useNavigate();
 
     const { deleteCartItem, clearCart } = useCart();
@@ -64,7 +64,7 @@ const Cart = ({isOpen, onClose, cartItems}) => {
 
                         <ul className={style.cartList}>
                             {/* 장바구니 항목 렌더링 */}
-                            {style.map(item => (
+                            {cartItems.map(item => (
                                 <li key={item.postId} className={style.cartItem}>
                                     <div className={style.itemInfo}>
                                         <p className={style.itemTitle}>

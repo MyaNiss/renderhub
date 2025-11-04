@@ -66,7 +66,6 @@ const UserProfile = () => {
     const {
         nickname,
         name,
-        gender,
         email,
         phone,
         bank,
@@ -118,12 +117,6 @@ const UserProfile = () => {
                 <div className={style.formGroup}>
                     <div className={style.label}>이름</div>
                     <div className={style.readOnlyField}>{name || '-'}</div>
-                </div>
-
-                {/* 4. 성별 (Gender) */}
-                <div className={style.formGroup}>
-                    <div className={style.label}>성별</div>
-                    <div className={style.readOnlyField}>{gender || '-'}</div>
                 </div>
 
                 {/* 5. 이메일 (Email) */}
@@ -207,7 +200,7 @@ const UserProfile = () => {
                             &times;
                         </button>
                         <ReAuthenticateModal
-                            onModalClose={closePasswordModal}
+                            onModalClose={closeReAuthModal}
                             onSuccess={reAuthSuccess}
                             action={actionToPerform}
                         />

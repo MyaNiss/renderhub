@@ -29,7 +29,7 @@ export const boardAPI = {
             throw new Error("게시글 ID가 필요합니다");
         }
 
-        const res = await api.get(`/api/v1/board/${id}`);
+        const res = await api.get(`/api/v1/board/${boardId}`);
 
         return res.data;
     },
@@ -47,7 +47,7 @@ export const boardAPI = {
     },
 
     delete: async (boardId) => {
-        const res = await api.delete(`/api/v1/board/${id}`);
+        const res = await api.delete(`/api/v1/board/${boardId}`);
         return res.data;
     }
 

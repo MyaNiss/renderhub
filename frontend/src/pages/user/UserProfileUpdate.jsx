@@ -22,8 +22,8 @@ const userUpdateSchema = yup.object().shape({
         .required('이메일은 필수 입력 항목입니다.'),
 
     phone: yup.string()
-        .matches(/^01([0|1|6|7|8|9])[-]?([0-9]{3,4})[-]?([0-9]{4})$/, '유효한 휴대폰 번호 형식이 아닙니다.')
-        .required('전화번호는 필수 입력 항목입니다.'),
+        .matches(/^01([0|1|6|7|8|9])-([0-9]{3,4})-([0-9]{4})$/, '유효한 휴대폰 번호 형식이 아닙니다. (하이픈 포함 필수: 01X-XXXX-XXXX)')
+        .nullable(true),
 
     bank: yup.string()
         .nullable(true),

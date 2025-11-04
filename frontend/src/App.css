@@ -42,6 +42,8 @@ html, body {
 
   --color-shadow-light: rgba(0, 0, 0, 0.05);
   --color-shadow-medium: rgba(0, 0, 0, 0.1);
+  --color-danger-light: #f7e6e6;
+  --color-text-secondary: #666;
   --color-danger: red;
 
   --color-table-bg: #ffffff;
@@ -84,6 +86,8 @@ body.dark-theme {
 
   --color-shadow-light: rgba(0, 0, 0, 0.5);
   --color-shadow-medium: rgba(0, 0, 0, 0.7);
+  --color-danger-light: #522727;
+  --color-text-secondary: #a9a9a9;
   --color-danger: #ff5757;
 
   --color-table-bg: #2c3e50;
