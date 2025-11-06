@@ -15,6 +15,10 @@ import lombok.ToString;
 @ToString
 public class CategoryEntity {
 
+    // 1** = "POST_CATEGORY"
+    // 2** = "POST_FILETYPE"
+    // 3** = "BOARD_CATEGORY"
+    // 4** = "CS_CATEGORY"
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "category_id")
