@@ -35,9 +35,9 @@ export const boardAPI = {
     },
 
     update: async (formData) => {
-        const id = formData.get('id');
+        const boardId = formData.get('boardId');
 
-        const res = await api.put(`/api/v1/board/${id}`, formData, {
+        const res = await api.put(`/api/v1/board/${boardId}`, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             }

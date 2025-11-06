@@ -47,9 +47,9 @@ export const csAPI = {
     },
 
     update: async (formData) => {
-        const id = formData.get('id');
+        const csId = formData.get('csId');
 
-        const res = await api.put(`/api/v1/cs/${id}`, formData, {
+        const res = await api.put(`/api/v1/cs/${csId}`, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             }

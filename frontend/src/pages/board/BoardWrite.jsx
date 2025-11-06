@@ -12,7 +12,7 @@ import {useAuthStore} from "../../store/authStore.jsx";
 // 유효성 처리
 const schema = yup.object().shape({
     category: yup.string().required("카테고리를 선택하십시오"),
-    title : yup.string().required("제목을 입력하십시오"),
+    title : yup.string().required("제목을 입력하십시오").max(100, "제목은 최대 100자 입니다"),
     contents : yup.string().required('내용을 입력하십시오'),
 });
 

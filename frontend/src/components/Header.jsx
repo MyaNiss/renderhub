@@ -7,7 +7,7 @@ import useSearch from "../customHook/useSearch.jsx";
 import {useLocation} from "react-router";
 import Cart from "./Cart.jsx";
 import {useCart} from "../customHook/useCart.jsx";
-// import {accountAPI} from "../service/accountService.jsx";
+import {accountAPI} from "../service/accountService.jsx";
 
 const Header = () => {
 
@@ -15,21 +15,22 @@ const Header = () => {
     const isHomePage = location.pathname === "/";
     const {logout : storeLogout} = useAuthStore();
 
-    // const logout = async () => {
-    //     try {
-    //         const result = await accountAPI.logout();
-    //
-    //
-    //         if(result.resultCode === 200){
-    //             console.log("로그아웃 성공");
-    //             storeLogout();
-    //         }else{
-    //             alert('로그아웃 실패');
-    //         }
-    //     }catch (error) {
-    //         console.error(error);
-    //     }
-    // }
+    const logout = async () => {
+        try {
+            const result = await accountAPI.logout();
+            console.log("로그아웃");
+
+
+            if(result.resultCode === 200){
+                console.log("로그아웃 성공");
+                storeLogout();
+            }else{
+                alert('로그아웃 실패');
+            }
+        }catch (error) {
+            console.error(error);
+        }
+    }
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated());
     const userName = useAuthStore((state) => state.userName);
 
