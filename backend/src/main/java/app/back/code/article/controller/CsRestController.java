@@ -3,6 +3,7 @@ package app.back.code.article.controller;
 import app.back.code.article.DTO.ArticleDTO;
 import app.back.code.article.entity.ArticleType;
 import app.back.code.article.service.ArticleService;
+import app.back.code.security.dto.UserSecureDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -10,6 +11,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,7 +24,8 @@ public class CsRestController {
     private final ArticleService articleService;
 
     @GetMapping("/list")
-    public ResponseEntity<Page<ArticleDTO>> getCsList(@RequestParam(defaultValue = "0")int currentPage, @RequestParam(required = false)List<Long> categories){
+    public ResponseEntity<Page<ArticleDTO>> getCsList(@RequestParam(defaultValue = "0")int currentPage,
+                                                      @RequestParam(required = false)List<Long> categories){
         Pageable pageable = PageRequest.of(currentPage, 10);
         Page<ArticleDTO> list = articleService.getArticleList(ArticleType.CS, categories, pageable);
 
@@ -30,8 +33,9 @@ public class CsRestController {
     }
 
     @PostMapping
-    public ResponseEntity<ArticleDTO> write(@RequestBody ArticleDTO request){
-        String writerId = "authenticated_user_id";
+    public ResponseEntity<ArticleDTO> write(@RequestBody ArticleDTO request,
+                                            @AuthenticationPrincipal UserSecureDTO userSecureDTO){
+        String writerId = userSecureDTO.getUserId();
 
         ArticleDTO newArticle = ArticleDTO.builder()
                 .title(request.getTitle())
@@ -57,16 +61,19 @@ public class CsRestController {
     }
 
     @PutMapping("/{csId}")
-    public ResponseEntity<ArticleDTO> update(@PathVariable("csId")Long csId, @Valid ArticleDTO request){
-        String userId = "authenticated_user_id";
+    public ResponseEntity<ArticleDTO> update(@PathVariable("csId")Long csId,
+                                             @Valid ArticleDTO request,
+                                             @AuthenticationPrincipal UserSecureDTO userSecureDTO){
+        String userId = userSecureDTO.getUserId();
 
         ArticleDTO updatedArticle = articleService.updateArticle(csId, request, userId);
         return ResponseEntity.ok(updatedArticle);
     }
 
     @DeleteMapping("/{csId}")
-    public ResponseEntity<Void> delete(@PathVariable("csId") Long csId){
-        String userId = "authenticated_user_id";
+    public ResponseEntity<Void> delete(@PathVariable("csId") Long csId,
+                                       @AuthenticationPrincipal UserSecureDTO userSecureDTO){
+        String userId = userSecureDTO.getUserId();
         articleService.deleteArticle(csId, userId);
         return ResponseEntity.noContent().build();
     }

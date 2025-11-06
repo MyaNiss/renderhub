@@ -1,8 +1,10 @@
 package app.back.code.user.service;
 
+import app.back.code.article.repository.ArticleRepository;
 import app.back.code.user.dto.UserDTO;
 import app.back.code.user.entity.UserAccountEntity;
 import app.back.code.user.entity.UserBankEntity;
+import app.back.code.user.entity.UserRoleEntity;
 import app.back.code.user.repository.UserBankRepository;
 import app.back.code.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +35,7 @@ public class UserService {
         }
 
         String encryptedPassword = passwordEncoder.encode(dto.getPassword());
-        UserRole defaultRole = roleService.findDefaultRole();
+        UserRoleEntity defaultRole = roleService.findDefaultRole();
 
         UserAccountEntity user = dto.toEntity(defaultRole, encryptedPassword);
         UserAccountEntity savedUser = userRepository.save(user);
@@ -78,8 +80,8 @@ public class UserService {
     public UserDTO findPublicUserById(String userId) {
         UserAccountEntity user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다"));
 
-        List<Long> postIds = postRepostiroy.findPostIdsByWriter(user);
-        List<Long> articleIds = articleRepostiory.findArticleIdsByWriter(user);
+        List<Long> postIds = postRepostiroy.findPostIdsByWriter(userId);
+        List<Long> articleIds = articleRepository.findArticleIdByWriter_UserId(userId);
 
         return UserDTO.builder()
                 .userId(user.getUserId())

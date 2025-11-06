@@ -34,4 +34,16 @@ public class CommentEntity extends BaseEntity {
 
     @Column(name = "content", length = 500, nullable = false)
     private String content;
+
+    @Builder
+    public CommentEntity(UserAccountEntity writer, String targetType, Long targetId, String content) {
+        this.writer = writer;
+        this.targetType = targetType;
+        this.targetId = targetId;
+        this.content = content;
+    }
+
+    public void updateContent(String content) {
+        this.content = content;
+    }
 }
