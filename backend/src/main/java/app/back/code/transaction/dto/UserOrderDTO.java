@@ -27,14 +27,18 @@ public class UserOrderDTO {
     @NotBlank(message = "주문 상태는 필수 입니다")
     private String status;
 
-    private String tossOrderId;
+    @NotBlank(message = "PG 타입은 필수입니다.")
+    private String pgType;
+
+    private String pgTid;
 
     public static UserOrderDTO fromEntity(UserOrderEntity entity, List<OrderItemDTO> itemDTOS) {
         return UserOrderDTO.builder()
                 .orderId(entity.getOrderId())
                 .totalPrice(entity.getTotalPrice())
                 .status(entity.getStatus())
-                .tossOrderId(entity.getTossOrderId())
+                .pgType(entity.getPgType())
+                .pgTid(entity.getPgTid())
                 .createdAt(entity.getCreatedAt())
                 .orderItems(itemDTOS)
                 .user(UserDTO.from(entity.getUser()))

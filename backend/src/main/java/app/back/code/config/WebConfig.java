@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.unit.DataSize;
 import org.springframework.util.unit.DataUnit;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.resource.PathResourceResolver;
@@ -40,5 +41,10 @@ public class WebConfig implements WebMvcConfigurer{
         factory.setMaxFileSize(DataSize.of(50, DataUnit.MEGABYTES));
         factory.setMaxRequestSize(DataSize.of(50, DataUnit.MEGABYTES));
         return factory.createMultipartConfig();
+    }
+
+    @Bean
+    public RestTemplate template(){
+        return new RestTemplate();
     }
 }

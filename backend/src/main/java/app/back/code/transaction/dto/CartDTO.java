@@ -1,5 +1,6 @@
 package app.back.code.transaction.dto;
 
+import app.back.code.post.dto.PostDTO;
 import app.back.code.transaction.entity.CartEntity;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;

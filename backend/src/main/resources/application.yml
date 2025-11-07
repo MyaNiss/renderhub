@@ -54,6 +54,10 @@ spring:
           use_sql_comments: false
           use_query_cache: false
 
+payment:
+  toss:
+    secret-key: test_gsk_docs_OaPz8L5KdmQXkzRz3y47BMw6 #SK_LIVE_YOUR_SECRET_KEY_HERE
+    confirm-url: https://api.tosspayments.com/v1/payments/confirm
 
 
   #코드 수정 시 자동으로 컴파일 & 적용

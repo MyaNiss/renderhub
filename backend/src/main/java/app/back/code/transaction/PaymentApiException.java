@@ -1,0 +1,12 @@
+package app.back.code.transaction;
+
+public class PaymentApiException extends RuntimeException {
+
+    public PaymentApiException(String message) {
+        super(message);
+    }
+
+    public PaymentApiException(String message, Throwable cause) {
+        super(message, cause);
+    }
+}

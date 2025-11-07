@@ -113,8 +113,9 @@ CREATE TABLE user_order (
     order_id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '주문 고유 ID',
     user_id VARCHAR(50) NOT NULL COMMENT '주문자 ID',
     total_price BIGINT NOT NULL COMMENT '총 결제 금액',
-    status VARCHAR(20) NOT NULL COMMENT '주문 상태',
-    toss_order_id VARCHAR(255) COMMENT '토스 결제 주문 ID',
+    status VARCHAR(20) NOT NULL DEFAULT 'CREATED' COMMENT '주문 상태',
+    pg_type VARCHAR(20) NOT NULL COMMENT '결제 PG사',
+    pg_tid VARCHAR(255) COMMENT 'PG사 발급 거래 ID',
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP() COMMENT '주문 일시',
 
     FOREIGN KEY (user_id) REFERENCES user_account(user_id)

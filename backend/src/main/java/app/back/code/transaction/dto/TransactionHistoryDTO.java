@@ -1,5 +1,6 @@
 package app.back.code.transaction.dto;
 
+import app.back.code.post.dto.PostDTO;
 import app.back.code.transaction.entity.TransactionHistoryEntity;
 import app.back.code.user.dto.UserDTO;
 import lombok.Builder;
@@ -19,7 +20,7 @@ public class TransactionHistoryDTO {
     public static TransactionHistoryDTO fromEntity(TransactionHistoryEntity entity) {
         return TransactionHistoryDTO.builder()
                 .user(UserDTO.from(entity.getUser()))
-                .post(PostDTO.from(entity.getPost()))
+                .post(PostDTO.fromEntity(entity.getPost()))
                 .orderId(entity.getOrder().getOrderId())
                 .createdAt(entity.getCreatedAt())
                 .build();
