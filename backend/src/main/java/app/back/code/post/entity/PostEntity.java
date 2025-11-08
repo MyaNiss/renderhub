@@ -1,5 +1,6 @@
 package app.back.code.post.entity;
 
+import app.back.code.article.entity.ArticleType;
 import app.back.code.common.entity.BaseEntity;
 import app.back.code.common.entity.CategoryEntity;
 import app.back.code.user.entity.UserAccountEntity;
@@ -48,7 +49,7 @@ public class PostEntity extends BaseEntity {
     private Long price;
 
     @Column(name = "view_count", nullable = false)
-    private Integer viewCount;
+    private Integer viewCount = 0;
 
     @Column(name = "purchase_count", nullable = false)
     private Integer purchaseCount = 0;
@@ -64,7 +65,27 @@ public class PostEntity extends BaseEntity {
         this.deletedAt = LocalDateTime.now();
     }
 
-    public void incrementViewCount() {
+    @Builder
+    public PostEntity(String title, UserAccountEntity writer, CategoryEntity category, CategoryEntity fileType, String content, Long price) {
+        this.title = title;
+        this.writer = writer;
+        this.category = category;
+        this.fileType = fileType;
+        this.content = content;
+        this.price = price;
+    }
+
+    public void increaseViewCount() {
         this.viewCount++;
+    }
+
+    public void update(String title, String content, Long price) {
+        this.title = title;
+        this.content = content;
+        this.price = price;
+    }
+
+    public void incrementPurchaseCount() {
+        this.purchaseCount++;
     }
 }

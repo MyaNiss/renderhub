@@ -25,21 +25,47 @@ const PostWrite = () => {
     setFiles(Array.from(e.target.files));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!category || !fileType) {
       alert("카테고리와 파일 형식을 선택해주세요.");
       return;
     }
-    alert("게시물이 등록되었습니다.");
-    navigate("/post"); // 등록 후 목록으로
-  };
 
-  const handleCancel = () => {
-    if (window.confirm("작성 중인 내용을 취소하시겠습니까?")) {
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("content", content);
+    formData.append("categoryId", category);
+    formData.append("fileTypeId", fileType);
+
+    // 이미지 파일 업로드
+    files.forEach((file) => {
+      formData.append("files", file);
+    });
+
+    try {
+      const token = localStorage.getItem("accessToken");
+      const response = await fetch("http://localhost:9090/post", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("업로드 실패");
+      }
+
+      alert("게시물이 등록되었습니다.");
       navigate("/post");
+    } catch (error) {
+      console.error(error);
+      alert("게시물 등록 중 오류가 발생했습니다.");
     }
   };
+
 
   return (
       <div className={style.container}>
