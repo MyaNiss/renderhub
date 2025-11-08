@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +31,7 @@ public class ArticleService {
         Page<ArticleEntity> articles;
 
         if(categoryIds != null && !categoryIds.isEmpty()){
+
             articles = articleRepository.findByTypeAndCategory_CategoryIdIn(articleType, categoryIds, pageable);
         } else {
             articles = articleRepository.findByType(articleType, pageable);

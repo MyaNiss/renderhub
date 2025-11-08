@@ -26,9 +26,9 @@ public class BoardRestController {
 
     @GetMapping("/list")
     public ResponseEntity<Page<ArticleDTO>> getBoardList(@RequestParam(defaultValue = "0")int currentPage,
-                                                         @RequestParam(required = false)List<Long> categories){
+                                                         @RequestParam(required = false)List<Long> categoryIds){
         Pageable pageable = PageRequest.of(currentPage, 10);
-        Page<ArticleDTO> list = articleService.getArticleList(ArticleType.BOARD, categories, pageable);
+        Page<ArticleDTO> list = articleService.getArticleList(ArticleType.BOARD, categoryIds, pageable);
 
         return ResponseEntity.ok(list);
     }

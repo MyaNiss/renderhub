@@ -15,7 +15,7 @@ public interface ArticleRepository extends JpaRepository<ArticleEntity, Long>, J
 
     List<Long> findArticleIdByWriter_UserId(String userId);
 
-    Page<ArticleEntity> findByTypeAndCategory_CategoryIdIn(ArticleType articleType, List<Long> categoryId, Pageable pageable);
+    Page<ArticleEntity> findByTypeAndCategory_CategoryIdIn(ArticleType articleType, List<Long> categoryIds, Pageable pageable);
 
     Page<ArticleEntity> findByType(ArticleType articleType, Pageable pageable);
 

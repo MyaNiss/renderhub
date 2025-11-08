@@ -25,9 +25,9 @@ public class CsRestController {
 
     @GetMapping("/list")
     public ResponseEntity<Page<ArticleDTO>> getCsList(@RequestParam(defaultValue = "0")int currentPage,
-                                                      @RequestParam(required = false)List<Long> categories){
+                                                      @RequestParam(required = false)List<Long> categoryIds){
         Pageable pageable = PageRequest.of(currentPage, 10);
-        Page<ArticleDTO> list = articleService.getArticleList(ArticleType.CS, categories, pageable);
+        Page<ArticleDTO> list = articleService.getArticleList(ArticleType.CS, categoryIds, pageable);
 
         return ResponseEntity.ok(list);
     }

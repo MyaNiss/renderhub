@@ -4,6 +4,7 @@ import app.back.code.article.repository.ArticleRepository;
 import app.back.code.comment.dto.CommentDTO;
 import app.back.code.comment.entity.CommentEntity;
 import app.back.code.comment.repository.CommentRepository;
+import app.back.code.post.repository.PostRepository;
 import app.back.code.user.entity.UserAccountEntity;
 import app.back.code.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
