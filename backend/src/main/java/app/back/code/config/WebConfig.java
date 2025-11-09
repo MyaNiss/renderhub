@@ -15,16 +15,15 @@ import org.springframework.web.servlet.resource.PathResourceResolver;
 @Configuration
 public class WebConfig implements WebMvcConfigurer{
 
-
-    @Value("${server.file.gallery.path}")
-    private String filePath;
+    @Value("${file.base.path}")
+    private String baseFilePath;
 
 
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/static/imgs/**")
-            .addResourceLocations("file:" + filePath )
+        registry.addResourceHandler("/uploads/**")
+            .addResourceLocations("file:" + baseFilePath)
             .setCachePeriod(0)
             .resourceChain(true)
             .addResolver(new PathResourceResolver());

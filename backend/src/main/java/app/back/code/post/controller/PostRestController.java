@@ -38,17 +38,20 @@ public class PostRestController {
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<PostDTO> write(
             @Valid @RequestPart("post") PostDTO request,
-            @RequestPart(value = "files", required = false) List<MultipartFile> files,
+            @RequestPart(value = "imageFiles", required = false) List<MultipartFile> imageFiles,
+            @RequestPart(value = "productFile", required = false) MultipartFile productFile,
             @AuthenticationPrincipal UserSecureDTO userSecureDTO
     ) {
         String writerId = userSecureDTO.getUserId();
-        PostDTO createdPost = postService.createPost(request, writerId, files);
+        PostDTO createdPost = postService.createPost(request, writerId, imageFiles, productFile);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdPost);
     }
 
     @GetMapping("/{postId}")
-    public ResponseEntity<PostDTO> getPostDetail(@PathVariable("postId") Long postId) {
-        PostDTO post = postService.getPost(postId);
+    public ResponseEntity<PostDTO> getPostDetail(@PathVariable("postId") Long postId,
+                                                 @AuthenticationPrincipal UserSecureDTO userSecureDTO) {
+        String userId = userSecureDTO != null ? userSecureDTO.getUserId() : null;
+        PostDTO post = postService.getPost(postId, userId);
 
         return ResponseEntity.ok(post);
     }
@@ -57,11 +60,12 @@ public class PostRestController {
     public ResponseEntity<PostDTO> update(@PathVariable("postId")Long postId,
                                           @Valid @RequestPart("post") PostDTO request,
                                           @AuthenticationPrincipal UserSecureDTO userSecureDTO,
-                                          @RequestPart(value = "files", required = false) List<MultipartFile> files){
+                                          @RequestPart(value = "imageFiles", required = false)List<MultipartFile> imageFiles,
+                                          @RequestPart(value = "productFile", required = false)MultipartFile productFile){
 
         String userId = userSecureDTO.getUserId();
 
-        PostDTO updatedPost = postService.updatePost(postId, request, userId, files);
+        PostDTO updatedPost = postService.updatePost(postId, request, userId, imageFiles, productFile);
         return ResponseEntity.ok(updatedPost);
     }
 

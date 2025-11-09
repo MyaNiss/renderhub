@@ -30,7 +30,7 @@ CREATE TABLE user_bank (
     account_number VARCHAR(100) NOT NULL COMMENT '계좌 번호',
     account_holder VARCHAR(50) NOT NULL COMMENT '예금주명',
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP() COMMENT '생성 일시',
-    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP() COMMENT '정보 최종 수정일',
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP() COMMENT '정보 최종 수정일',
 
     FOREIGN KEY (user_id) REFERENCES user_account(user_id)
 );
@@ -51,7 +51,7 @@ CREATE TABLE post (
     category_id BIGINT NOT NULL COMMENT '상품 분류 카테고리 ID',
     file_type_id BIGINT NOT NULL COMMENT '상품 파일 형식 ID',
     title VARCHAR(100) NOT NULL COMMENT '제목',
-    content TEXT NOT NULL COMMENT '본문 (Quill 내용)',
+    content TEXT NOT NULL COMMENT '본문',
     price BIGINT NOT NULL COMMENT '판매 가격',
     view_count INT NOT NULL DEFAULT 0 COMMENT '조회수',
     purchase_count INT NOT NULL DEFAULT 0 COMMENT '품목 구매 수',
@@ -69,7 +69,7 @@ CREATE TABLE post (
 CREATE TABLE article (
     article_id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '게시글 고유 ID',
     writer_id VARCHAR(50) NOT NULL COMMENT '작성자 ID',
-    article_type varchar(10) not null comment 'BOARD, CS 등 게시판 종류'
+    article_type varchar(10) not null comment 'BOARD, CS 등 게시판 종류',
     category_id BIGINT NOT NULL COMMENT '카테고리 ID',
     title VARCHAR(100) NOT NULL COMMENT '제목',
     content TEXT NOT NULL COMMENT '본문 (Quill 내용)',
@@ -90,6 +90,7 @@ CREATE TABLE file (
     stored_path VARCHAR(255) NOT NULL COMMENT '서버/S3 저장 경로',
     post_id BIGINT NULL COMMENT '연관된 상품 ID',
     article_id BIGINT NULL COMMENT '연관된 게시글/CS ID',
+    display_order INT NULL COMMENT '이미지 순서',
 
     FOREIGN KEY (post_id) REFERENCES post(post_id),
     FOREIGN KEY (article_id) REFERENCES article(article_id)

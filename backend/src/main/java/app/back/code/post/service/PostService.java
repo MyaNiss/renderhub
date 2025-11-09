@@ -2,9 +2,14 @@ package app.back.code.post.service;
 
 import app.back.code.article.repository.CategoryRepository;
 import app.back.code.common.entity.CategoryEntity;
+import app.back.code.file.entity.FileEntity;
+import app.back.code.file.repository.FileRepository;
+import app.back.code.file.service.FileService;
+import app.back.code.file.service.StorageService;
 import app.back.code.post.dto.PostDTO;
 import app.back.code.post.entity.PostEntity;
 import app.back.code.post.repository.PostRepository;
+import app.back.code.transaction.repository.TransactionHistoryRepository;
 import app.back.code.user.entity.UserAccountEntity;
 import app.back.code.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -16,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +32,9 @@ public class PostService {
     private final PostRepository postRepository;
     private final CategoryRepository categoryRepository;
     private final FileService fileService;
+    private final FileRepository fileRepository;
+    private final StorageService storageService;
+    private final TransactionHistoryRepository transactionHistoryRepository;
 
     //3D 게시물 검색
     public Page<PostDTO> getPostList(List<Long> categoryIds, List<Long> fileTypeIds, Pageable pageable) {
@@ -52,7 +61,7 @@ public class PostService {
         return posts.map(PostDTO::fromEntity);
     }
 
-    public PostDTO createPost(PostDTO request, String writerId, List<MultipartFile> files) {
+    public PostDTO createPost(PostDTO request, String writerId, List<MultipartFile> imageFiles, MultipartFile productFile) {
 
         UserAccountEntity writer = userRepository.findById(writerId)
                 .orElseThrow(() -> new EntityNotFoundException("작성자를 찾을 수 없습니다."));
@@ -60,34 +69,98 @@ public class PostService {
         CategoryEntity category = categoryRepository.findById(request.getCategoryId()).orElseThrow(() -> new EntityNotFoundException("카테고리를 찾을 수 없습니다"));
         CategoryEntity fileType = categoryRepository.findById(request.getFileTypeId()).orElseThrow(() -> new EntityNotFoundException("파일형식을 찾을 수 없습니다"));
 
+        if (productFile == null || productFile.isEmpty()) {
+            throw new IllegalArgumentException("제품 파일은 필수로 등록해야 합니다.");
+        }
+
+        final String subDirName = fileType.getName().toUpperCase();
+
         PostEntity newPost = PostEntity.builder()
                 .title(request.getTitle())
                 .content(request.getContent())
+                .price(request.getPrice())
                 .writer(writer)
                 .category(category)
                 .fileType(fileType)
                 .build();
         postRepository.save(newPost);
 
-//      fileService 확인 후 변경 예정.
-        if (files != null && !files.isEmpty()) {
-            fileService.saveFiles(newPost, files);
+        final String productFileUseType = "POST_FILE";
+
+        fileService.savePostFile(newPost, productFile, productFileUseType, subDirName, null);
+
+
+        if (imageFiles != null && !imageFiles.isEmpty()) {
+            final String fileUseType = "POST_IMG";
+
+            for (int i = 0; i < imageFiles.size(); i++) {
+                MultipartFile image = imageFiles.get(i);
+                if (!image.isEmpty()) {
+                    fileService.savePostFile(newPost, image, fileUseType, subDirName, i);
+                }
+            }
         }
 
         return PostDTO.fromEntity(newPost);
     }
 
     @Transactional
-    public PostDTO getPost(Long postId) {
+    public PostDTO getPost(Long postId, String userId) {
         PostEntity post = postRepository.findById(postId).orElseThrow(() -> new EntityNotFoundException("게시글을 찾을 수 없습니다"));
 
         post.increaseViewCount();
 
-        return PostDTO.fromEntity(post);
+        List<FileEntity> productEntities = fileRepository.findByPost_PostIdAndFileUseTypeOrderByDisplayOrderAsc(postId, "POST_FILE");
+        FileEntity productFileEntity = productEntities.isEmpty() ? null : productEntities.getFirst();
+
+        boolean isPurchased = false;
+
+        if(userId != null){
+            isPurchased = transactionHistoryRepository.existsByUser_UserIdAndPost_PostId(userId, postId);
+        }
+
+        String productFileUrl = null;
+        String productFileName = null;
+
+        if (productFileEntity != null) {
+            productFileName = productFileEntity.getOriginalName();
+
+            if (isPurchased || post.getWriter().getUserId().equals(userId)) {
+                productFileUrl = storageService.getPublicUrl(productFileEntity.getStoredPath());
+            }
+        }
+
+        List<FileEntity> imageEntities = fileRepository.findByPost_PostIdAndFileUseTypeOrderByDisplayOrderAsc(postId, "POST_IMG");
+        List<String> imageUrls = imageEntities.stream()
+                .map(e -> storageService.getPublicUrl(e.getStoredPath()))
+                .collect(Collectors.toList());
+
+
+        PostDTO baseDTO = PostDTO.fromEntity(post);
+
+        return PostDTO.builder()
+                .postId(baseDTO.getPostId())
+                .writer(baseDTO.getWriter())
+                .price(baseDTO.getPrice())
+                .viewCount(baseDTO.getViewCount())
+                .purchaseCount(baseDTO.getPurchaseCount())
+                .createdAt(baseDTO.getCreatedAt())
+                .updatedAt(baseDTO.getUpdatedAt())
+                .deletedAt(baseDTO.getDeletedAt())
+                .isDeleted(baseDTO.getIsDeleted())
+                .title(baseDTO.getTitle())
+                .content(baseDTO.getContent())
+                .categoryId(baseDTO.getCategoryId())
+                .fileTypeId(baseDTO.getFileTypeId())
+                .imageUrls(imageUrls)
+                .productFileName(productFileName)
+                .productFileUrl(productFileUrl)
+                .isPurchased(isPurchased)
+                .build();
     }
 
     @Transactional
-    public PostDTO updatePost(Long postId, PostDTO request,  String userId, List<MultipartFile> files) {
+    public PostDTO updatePost(Long postId, PostDTO request,  String userId, List<MultipartFile> imageFiles, MultipartFile productFile) {
         PostEntity post = postRepository.findById(postId).orElseThrow(() -> new EntityNotFoundException("게시글을 찾을 수 없습니다"));
 
         if(!post.getWriter().getUserId().equals(userId)){
@@ -100,10 +173,9 @@ public class PostService {
              request.getPrice()
         );
 
-//        fileService 확인 후 변경 예정.
-        if (files != null && !files.isEmpty()) {
-            fileService.replaceFiles(post, files); // 새 파일로 교체
-        }
+        final String subDirName = post.getFileType().getName().toUpperCase();
+
+        fileService.replacePostFiles(post, imageFiles, productFile, subDirName);
 
         return PostDTO.fromEntity(post);
     }
@@ -116,7 +188,7 @@ public class PostService {
             throw new IllegalArgumentException("게시글 삭제 권한이 없습니다");
         }
 
-        postRepository.delete(post);
+        post.delete();
     }
 
 

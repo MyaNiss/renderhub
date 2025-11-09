@@ -72,6 +72,8 @@ dependencies {
     //json 라이브러리
     implementation 'org.json:json:20250517'
 
+    implementation 'org.jsoup:jsoup:1.17.2'
+
 
 }
 

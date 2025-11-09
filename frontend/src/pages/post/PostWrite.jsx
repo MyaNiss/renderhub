@@ -25,6 +25,10 @@ const PostWrite = () => {
     setFiles(Array.from(e.target.files));
   };
 
+  const handleCancel = () => {
+    navigate('/post');
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 

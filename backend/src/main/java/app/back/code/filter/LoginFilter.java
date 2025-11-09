@@ -111,7 +111,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter{
          try{
 
             JSONObject jObj = new JSONObject();
-            jObj.put("resultMsg", "FIAL");
+            jObj.put("resultMsg", "FAIL");
             jObj.put("status", HttpServletResponse.SC_UNAUTHORIZED);
             JSONObject data = new JSONObject();  
             jObj.put("content", data);

@@ -1,7 +1,8 @@
-import React, {useMemo} from 'react';
+import React, {useMemo, useRef} from 'react';
 import ReactQuill from "react-quill-new";
 import ImageResize from "quill-image-resize-module-react/src/ImageResize.js";
 import '../assets/css/quill.custom.css';
+import {fileAPI} from "../service/fileService.jsx";
 
 try{
     ReactQuill.Quill.register('modules/imageResize', ImageResize);
@@ -11,6 +12,35 @@ try{
 
 const UseQuillEditor = (value, onChange) => {
 
+    const quillRef = useRef(null);
+
+    const imageHandler = () => {
+        const input = document.createElement("input");
+        input.setAttribute("type", "file");
+        input.setAttribute("accept", "image/*");
+        input.click();
+
+        input.onchange = async () => {
+            const file = input.files[0];
+            if(!file) return;
+
+            const formData = new FormData();
+            formData.append("file", file);
+
+            try{
+                const imageUrl = await fileAPI.uploadQuillImage(formData);
+
+                const quill = quillRef.current.getEditor();
+                const range = quill.getSelection();
+
+                quill.insertEmbed(range.index, 'image', imageUrl);
+                quill.setSelection(range.index + 1);
+            } catch (error) {
+                console.error(error);
+            }
+        }
+    }
+
     const modules = useMemo(()=> ({
         toolbar: [
             [{'header': [1, 2, false]}],
@@ -19,6 +49,9 @@ const UseQuillEditor = (value, onChange) => {
             ['link', 'image', 'video'],
             ['clean']
         ],
+        handlers: {
+            image: imageHandler,
+        },
         imageResize: {
             parchment: ReactQuill.Quill.import('parchment'),
             modules: ['Resize', 'DisplaySize', 'Toolbar'],
@@ -30,8 +63,9 @@ const UseQuillEditor = (value, onChange) => {
         'list', 'bullet', 'link', 'image', 'video', 'color', 'background'
     ];
 
-    const EditorComponent = (
+    return (
         <ReactQuill
+            ref={quillRef}
             id="contents"
             theme="snow"
             value={value}
@@ -39,9 +73,7 @@ const UseQuillEditor = (value, onChange) => {
             modules={modules}
             formats={formats}
         />
-    )
-
-    return EditorComponent;
+    );
 };
 
 export default UseQuillEditor;

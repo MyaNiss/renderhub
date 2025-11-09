@@ -21,6 +21,8 @@ import PostList from "../pages/post/PostList.jsx";
 import PostUpdate from "../pages/post/PostUpdate.jsx";
 import PaymentSuccessPage from "../pages/transaction/PaymentSuccessPage.jsx";
 import PaymentFailPage from "../pages/transaction/PaymentFailPage.jsx";
+import LoginPage from "../pages/LoginPage.jsx";
+import RegisterPage from "../pages/RegisterPage.jsx";
 
 export const router = createBrowserRouter(
     [
@@ -31,6 +33,14 @@ export const router = createBrowserRouter(
                 {
                     index: true,
                     element: <HomePage />,
+                },
+                {
+                    path: 'login',
+                    element: <LoginPage />,
+                },
+                {
+                    path: 'register',
+                    element: <RegisterPage />,
                 },
                 {
                     path: '/user',

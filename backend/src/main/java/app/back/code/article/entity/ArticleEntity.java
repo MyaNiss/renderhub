@@ -49,6 +49,10 @@ public class ArticleEntity extends BaseEntity {
     @Column(name = "view_count", nullable = false)
     private Integer viewCount = 0;
 
+    public ArticleEntity(Long articleId){
+        this.articleId = articleId;
+    }
+
     @Builder
     public ArticleEntity(String title, UserAccountEntity writer, ArticleType type, CategoryEntity category, String content, Boolean isSecret) {
         this.title = title;

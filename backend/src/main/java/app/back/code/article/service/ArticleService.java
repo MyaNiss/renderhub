@@ -6,6 +6,8 @@ import app.back.code.article.entity.ArticleType;
 import app.back.code.article.repository.ArticleRepository;
 import app.back.code.article.repository.CategoryRepository;
 import app.back.code.common.entity.CategoryEntity;
+import app.back.code.common.utils.HtmlParserUtils;
+import app.back.code.file.service.FileService;
 import app.back.code.user.entity.UserAccountEntity;
 import app.back.code.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -26,6 +28,8 @@ public class ArticleService {
     private final ArticleRepository articleRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
+    private final FileService fileService;
+    private final HtmlParserUtils htmlParserUtils;
 
     public Page<ArticleDTO> getArticleList(ArticleType articleType, List<Long> categoryIds, Pageable pageable){
         Page<ArticleEntity> articles;
@@ -51,10 +55,17 @@ public class ArticleService {
                 .content(request.getContent())
                 .writer(writer)
                 .category(category)
+                .type(request.getType())
                 .isSecret(request.getIsSecret())
                 .build();
 
         articleRepository.save(newArticle);
+
+        List<String> storedPaths = HtmlParserUtils.extractImagePathsFromHtml(request.getContent());
+
+        if(!storedPaths.isEmpty()){
+            fileService.mapTempQuillImagesToArticle(newArticle.getArticleId(), storedPaths, writerId);
+        }
 
         return ArticleDTO.fromEntity(newArticle);
     }

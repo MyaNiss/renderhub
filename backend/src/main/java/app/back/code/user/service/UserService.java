@@ -1,6 +1,7 @@
 package app.back.code.user.service;
 
 import app.back.code.article.repository.ArticleRepository;
+import app.back.code.post.repository.PostRepository;
 import app.back.code.user.dto.UserDTO;
 import app.back.code.user.entity.UserAccountEntity;
 import app.back.code.user.entity.UserBankEntity;
@@ -20,7 +21,7 @@ import java.util.List;
 public class UserService {
     private final UserRepository userRepository;
     private final UserBankRepository userBankRepository;
-    private final PostRepostiroy postRepostiroy;
+    private final PostRepository postRepository;
     private final ArticleRepository articleRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserRoleService roleService;
@@ -80,7 +81,7 @@ public class UserService {
     public UserDTO findPublicUserById(String userId) {
         UserAccountEntity user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다"));
 
-        List<Long> postIds = postRepostiroy.findPostIdsByWriter(userId);
+        List<Long> postIds = postRepository.findPostIdByWriter_UserId(userId);
         List<Long> articleIds = articleRepository.findArticleIdByWriter_UserId(userId);
 
         return UserDTO.builder()
@@ -92,5 +93,6 @@ public class UserService {
                 .articleIds(articleIds)
                 .build();
     }
+
 
 }

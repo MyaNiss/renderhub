@@ -34,4 +34,17 @@ public class FileEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "article_id")
     private ArticleEntity article;
+
+    @Column(name = "display_order")
+    private Integer displayOrder;
+
+    @Builder
+    public FileEntity(String fileUseType, String originalName, String storedPath, PostEntity post, ArticleEntity article, Integer displayOrder) {
+        this.fileUseType = fileUseType;
+        this.originalName = originalName;
+        this.storedPath = storedPath;
+        this.post = post;
+        this.article = article;
+        this.displayOrder = displayOrder;
+    }
 }

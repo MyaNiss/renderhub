@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Builder
@@ -34,6 +35,12 @@ public class PostDTO {
     @NotNull(message = "카테고리는 필수입니다")
     private Long categoryId;
     private Long fileTypeId;
+
+    private List<String> imageUrls;
+    private String productFileUrl;
+    private String productFileName;
+
+    private Boolean isPurchased = false;
 
     public static PostDTO fromEntity(PostEntity entity){
         return PostDTO.builder()

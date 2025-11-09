@@ -12,4 +12,6 @@ public interface TransactionHistoryRepository extends JpaRepository<TransactionH
     List<TransactionHistoryEntity> findByUser_UserIdOrderByCreatedAtDesc(String userId);
 
     List<TransactionHistoryEntity> findByPost_PostId(Long postId);
+
+    boolean existsByUser_UserIdAndPost_PostId(String userId, Long postId);
 }

@@ -9,10 +9,8 @@ server:
       force-response: true
   port: 9090
   file:
-    upload:
-      path: C:\\files\\upload\\board\\
-    gallery:
-      path: C:\\files\\upload\\gallery\\
+    base:
+      path: C:/files/upload
 
 
 spring:
