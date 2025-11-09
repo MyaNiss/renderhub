@@ -2,10 +2,13 @@ import React from "react";
 import style from "../../assets/css/post.common.module.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useNavigate, useParams } from "react-router";
+import {useCart} from "../../customHook/useCart.jsx";
 
 const PostDetail = () => {
     const navigate = useNavigate();
     const { id: postId } = useParams();
+
+    const { addCart } = useCart();
 
     const product = {
         title: "제품명",
@@ -24,6 +27,23 @@ const PostDetail = () => {
         }
     };
     const handleBack = () => navigate("/post");
+
+    const handleAddToCart = () => {
+        addCart.mutate(postId, {
+            onSuccess: () => alert("장바구니에 상품이 추가되었습니다"),
+            onError: error => console.error(error),
+        })
+    };
+
+    const handleBuyNow = () => {
+        const purchaseItem = [{
+            postId: postId
+        }];
+
+        navigate('/transaction/buy',{
+            state: { purchaseItem },
+        })
+    }
 
     return (
         <div className={style.container}>
@@ -100,6 +120,19 @@ const PostDetail = () => {
                 </section>
 
                 <div className={`${style.buttonGroup} mt-4`}>
+                    <button
+                        className={style.primaryButton}
+                        onClick={handleBuyNow}
+                    >
+                        바로 구매
+                    </button>
+
+                    <button
+                        className={style.primaryButton}
+                        onClick={handleAddToCart}
+                    >
+                        장바구니 담기
+                    </button>
                     <button className={style.primaryButton} onClick={handleEdit}>
                         수정
                     </button>

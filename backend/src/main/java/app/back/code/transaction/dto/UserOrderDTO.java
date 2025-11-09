@@ -16,28 +16,30 @@ import java.util.List;
 public class UserOrderDTO {
 
     private Long orderId;
-    private UserDTO user;
+    private Long totalPrice;
     private LocalDateTime createdAt;
 
+    private UserDTO user;
     private List<OrderItemDTO> orderItems;
 
-    @NotNull(message = "총 결제 금액은 필수 입니다")
-    private Long totalPrice;
 
     @NotBlank(message = "주문 상태는 필수 입니다")
     private String status;
 
-    @NotBlank(message = "PG 타입은 필수입니다.")
-    private String pgType;
+    @NotBlank(message = "토스 주문 코드는 필수입니다")
+    private String tossOrderCode;
 
     private String pgTid;
 
     public static UserOrderDTO fromEntity(UserOrderEntity entity, List<OrderItemDTO> itemDTOS) {
+
+        UserDTO userDTO = entity.getUser() != null ? UserDTO.from(entity.getUser()) : null;
+
         return UserOrderDTO.builder()
                 .orderId(entity.getOrderId())
                 .totalPrice(entity.getTotalPrice())
                 .status(entity.getStatus())
-                .pgType(entity.getPgType())
+                .tossOrderCode(entity.getTossOrderCode())
                 .pgTid(entity.getPgTid())
                 .createdAt(entity.getCreatedAt())
                 .orderItems(itemDTOS)

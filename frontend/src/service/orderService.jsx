@@ -14,7 +14,7 @@ export const orderAPI = {
     },
 
     createOrder: async (orderData) => {
-        const res = await api.post(`/api/v1/orders/create`, orderData);
+        const res = await api.post(`/api/v1/orders`, orderData);
         return res.data;
     },
 

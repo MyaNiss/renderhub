@@ -32,18 +32,19 @@ public class UserOrderEntity extends CreatedAtEntity {
     @Column(name = "status", length = 20, nullable = false)
     private String status;
 
-    @Column(name = "pg_type", length = 20, nullable = false)
-    private String pgType;
+    @Column(name = "toss_order_code", length = 255, unique = true, nullable = false)
+    private String tossOrderCode;
 
+    @Setter
     @Column(name = "pg_tid", length = 255)
     private String pgTid;
 
     @Builder
-    public UserOrderEntity(UserAccountEntity user, Long totalPrice, String status, String pgType, String pgTid) {
+    public UserOrderEntity(UserAccountEntity user, Long totalPrice, String status, String tossOrderCode, String pgTid) {
         this.user = user;
         this.totalPrice = totalPrice;
         this.status = status;
-        this.pgType = pgType;
+        this.tossOrderCode = tossOrderCode;
         this.pgTid = pgTid;
     }
 }

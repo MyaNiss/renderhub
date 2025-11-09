@@ -19,6 +19,8 @@ import PostDetail from "../pages/post/PostDetail.jsx";
 import PostWrite from "../pages/post/PostWrite.jsx";
 import PostList from "../pages/post/PostList.jsx";
 import PostUpdate from "../pages/post/PostUpdate.jsx";
+import PaymentSuccessPage from "../pages/transaction/PaymentSuccessPage.jsx";
+import PaymentFailPage from "../pages/transaction/PaymentFailPage.jsx";
 
 export const router = createBrowserRouter(
     [
@@ -61,6 +63,14 @@ export const router = createBrowserRouter(
                         {
                             path: 'buy',
                             element: <TransactionBuy />
+                        },
+                        {
+                            path: 'success',
+                            element: <PaymentSuccessPage />
+                        },
+                        {
+                            path: 'fail',
+                            element: <PaymentFailPage />
                         }
                     ]
                 },

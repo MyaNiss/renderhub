@@ -4,6 +4,7 @@ import app.back.code.post.entity.PostEntity;
 import app.back.code.post.repository.PostRepository;
 import app.back.code.transaction.PaymentApiException;
 import app.back.code.transaction.dto.OrderItemDTO;
+import app.back.code.transaction.dto.PaymentResultDTO;
 import app.back.code.transaction.dto.UserOrderDTO;
 import app.back.code.transaction.entity.CartEntity;
 import app.back.code.transaction.entity.OrderItemEntity;
@@ -14,9 +15,12 @@ import app.back.code.user.entity.UserAccountEntity;
 import app.back.code.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -25,6 +29,13 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class OrderService {
+    @Value("${payment.toss.secret-key}")
+    private String tossSecretKey;
+
+    @Value("${payment.toss.confirm-url}")
+    private String tossConfirmUrl;
+
+    private final RestTemplate restTemplate;
 
     private final UserOrderRepository userOrderRepository;
     private final OrderItemRepository orderItemRepository;
@@ -60,11 +71,13 @@ public class OrderService {
             totalPrice = cartItems.stream().mapToLong(cart -> cart.getPost().getPrice()).sum();
         }
 
+        String tossOrderCode = UUID.randomUUID().toString().replaceAll("-", "");
+
         UserOrderEntity newOrder = UserOrderEntity.builder()
                 .user(user)
                 .totalPrice(totalPrice)
-                .pgType("TOSS")
                 .pgTid(null)
+                .tossOrderCode(tossOrderCode)
                 .status("PENDING")
                 .build();
         userOrderRepository.save(newOrder);
@@ -86,12 +99,10 @@ public class OrderService {
     }
 
     @Transactional(rollbackFor = PaymentApiException.class)
-    public UserOrderDTO confirmOrderTransaction(String orderIdStr, String paymentKey, String currentUserId) {
+    public UserOrderDTO confirmOrderTransaction(String tossOrderCode, String paymentKey, String currentUserId) {
 
-        Long orderId = Long.parseLong(orderIdStr);
-
-        UserOrderEntity order = userOrderRepository.findById(orderId)
-                .orElseThrow(() -> new EntityNotFoundException("주문(ID: " + orderId + ")을 찾을 수 없습니다."));
+        UserOrderEntity order = userOrderRepository.findByTossOrderCode(tossOrderCode)
+                .orElseThrow(() -> new EntityNotFoundException("주문(ID: " + tossOrderCode + ")을 찾을 수 없습니다."));
 
         if (!order.getUser().getUserId().equals(currentUserId)) {
             throw new SecurityException("해당 주문에 대한 권한이 없습니다.");
@@ -101,17 +112,17 @@ public class OrderService {
             throw new IllegalStateException("이미 처리된 주문입니다. (상태: " + order.getStatus() + ")");
         }
 
-        // 🚨 2. 결제 게이트웨이 최종 승인 (실제로는 PaymentService.confirmPayment 호출)
-        // PaymentResult result = paymentService.confirmPayment(order.getPgType(), order.getTotalPrice(), paymentKey);
-        // String confirmedTid = result.getTransactionId();
+        PaymentResultDTO result = paymentService.confirmPayment(
+             tossOrderCode,
+             order.getTotalPrice(),
+             paymentKey);
 
-        // 💡 PaymentService가 성공적으로 처리했다고 가정하고 임시 TID를 사용합니다.
-        String confirmedTid = order.getPgType() + "_TID_" + orderId + "_SUCCESS";
 
         order.setStatus("PAID");
-        order.setPgTid(confirmedTid);
+        order.setPgTid(result.getTransactionId());
+        userOrderRepository.save(order);
 
-        List<OrderItemEntity> paidItems = orderItemRepository.findByOrder_OrderId(orderId);
+        List<OrderItemEntity> paidItems = orderItemRepository.findByOrder_OrderId(order.getOrderId());
         List<Long> postIds = paidItems.stream().map(item -> item.getPost().getPostId()).collect(Collectors.toList());
 
         for (OrderItemEntity item : paidItems) {
@@ -149,9 +160,13 @@ public class OrderService {
                 .collect(Collectors.toList());
     }
 
-    public UserOrderDTO getOrderDetails(Long orderId) {
+    public UserOrderDTO getOrderDetails(Long orderId, String currentUserId) throws AccessDeniedException {
         UserOrderEntity order = userOrderRepository.findById(orderId)
                 .orElseThrow(() -> new EntityNotFoundException("주문(ID: " + orderId + ")을 찾을 수 없습니다."));
+
+        if(!order.getUser().getUserId().equals(currentUserId)){
+            throw new AccessDeniedException("해당 주문에 대한 접근 권한이 없습니다");
+        }
 
         List<OrderItemEntity> items = orderItemRepository.findByOrder_OrderId(orderId);
         List<OrderItemDTO> itemDTOS = items.stream()

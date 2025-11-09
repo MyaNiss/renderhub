@@ -2,6 +2,9 @@ import React, {useEffect, useMemo, useState} from 'react';
 import {useLocation, useNavigate} from "react-router";
 import {useOrder} from "../../customHook/useOrder.jsx";
 import style from "../../assets/css/transaction.common.module.css";
+import {loadTossPayments} from "@tosspayments/payment-sdk";
+
+const TOSS_CLIENT_KEY = import.meta.env.VITE_TOSS_CLIENT_KEY;
 
 const TransactionBuy = () => {
     const navigate = useNavigate();
@@ -9,10 +12,12 @@ const TransactionBuy = () => {
 
     const purchaseItems = location.state?.items || [];
     const postIds = purchaseItems.map(item => item.postId);
-    const [paymentMethod, setPaymentMethod] = useState('card');
+
+    const [tossOrderData, setTossOrderData] = useState(null);
+    const [paymentWidget, setPaymentWidget] = useState(null);
+    const [isWidgetLoading, setIsWidgetLoading] = useState(true);
 
     const {getPostDetail} = (postIds);
-
     const {createOrderMutation} = useOrder();
 
     const handleGoBack = () => {
@@ -33,38 +38,72 @@ const TransactionBuy = () => {
     }, [purchaseItems, getPostDetail]);
 
     const totalPrice = useMemo(() => {
-        const subTotal = finalItems.reduce((total, item) => {
-            return total + item.price;
+        return finalItems.reduce((total, item) => {
+            return total + (item.price || 0);
         }, 0);
-
-        return subTotal;
     }, [finalItems]);
 
     useEffect(() => {
         if (purchaseItems.length === 0) {
             alert("구매할 상품 정보가 없습니다");
             navigate('/');
+            return;
         }
-    }, [purchaseItems, navigate]);
 
-    const purchase = async () => {
+        const setupPaymentWidget = async () => {
+            const postIdToPurchase = purchaseItems.length === 1 ? purchaseItems[0].postId : null;
+            const dataForBackend = {
+                postId: postIdToPurchase,
+            };
 
-        const orderData = {
-            items: purchaseItems.map((item) => ({
-                postId: item.postId
-            })),
-            purchaseType: purchaseItems[0]?.purchaseType,
-            totalPrice: totalPrice
+            try {
+                const tossPreparationData = await createOrderMutation.mutateAsync(dataForBackend);
+                setTossOrderData(tossPreparationData);
+
+                const tossPayments = await loadTossPayments(TOSS_CLIENT_KEY);
+
+                const widget = tossPayments.widgets.set(
+                    TOSS_CLIENT_KEY,
+                    tossPreparationData.tossOrderCode
+                );
+
+                widget.renderPaymentMethods(
+                    '#payment-widget',
+                    tossPreparationData.totalPrice
+                );
+
+                widget.renderAgreement('#agreement-widget');
+
+                setPaymentWidget(widget);
+
+            } catch (error) {
+                console.error("결제 위젯 로딩 오류:", error);
+                alert("결제 위젯을 로드할 수 없습니다.");
+            } finally {
+                setIsWidgetLoading(false);
+            }
         };
 
-        try{
-            const tossPreparationData = await createOrderMutation.mutateAsync(orderData);
-            console.log("주문 데이터 전송 준비", orderData);
+        setupPaymentWidget();
 
-            alert("주문 정보 백엔드에 전달");
-            navigate('/');
-        }catch (error) {
-            console.log(error);
+    }, [purchaseItems, createOrderMutation, navigate, getPostDetail]);
+
+
+    const purchase = async () => {
+        if (!paymentWidget || !tossOrderData || isWidgetLoading) {
+            alert("결제 시스템 준비 중입니다. 잠시만 기다려주세요.");
+            return;
+        }
+
+        try {
+            await paymentWidget.requestPayment({
+                successUrl: window.location.origin + '/transaction/success',
+                failUrl: window.location.origin + '/transaction/fail',
+                customerName: "고객명",
+            });
+
+        } catch (error) {
+            console.error("결제 요청 오류:", error);
         }
     }
 
@@ -77,41 +116,38 @@ const TransactionBuy = () => {
                 ⬅️ 뒤로가기
             </button>
 
-            <h2>주문 / 결제</h2>
+            <h2>주문 / 결제 최종 확인</h2>
 
             <section className={style.section}>
                 <h3 className={style.sectionHeader}>📦 주문 상품 ({finalItems.length}종)</h3>
                 <ul>
                     {finalItems.map((item, index) => (
                         <li key={index} style={{ marginBottom: '5px' }}>
-                            **{item.title}** /  금액: {item.price.toLocaleString()}원
+                            **{item.title}** (1개) / 금액: {item.price ? item.price.toLocaleString() : '가격 미정'}원
                         </li>
                     ))}
                 </ul>
             </section>
 
             <section className={style.section}>
-                <h3 className={style.sectionHeader}>💳 결제 수단</h3>
-                <select
-                    value={paymentMethod}
-                    onChange={(e) => setPaymentMethod(e.target.value)}
-                    className={style.addressInput}
-                >
-                    <option value="card">신용/체크카드</option>
-                    <option value="bank">계좌이체</option>
-                    <option value="point">포인트 결제</option>
-                </select>
+                <h3 className={style.sectionHeader}>💳 결제 수단 선택</h3>
+                <div id="payment-widget" style={{ minHeight: '200px', border: '1px solid #eee', padding: '15px' }}>
+                    {(isWidgetLoading || !tossOrderData) && <p>결제 위젯을 불러오는 중...</p>}
+                </div>
             </section>
 
             <div className={style.totalSummary}>
-                <p style={{fontSize: '1.2em', fontWeight: 'bold'}}>총 상품 금액: {totalPrice.toLocaleString()} 원</p>
+                <p style={{fontSize: '1.2em', fontWeight: 'bold'}}>
+                    총 결제 금액: {totalPrice.toLocaleString()} 원
+                </p>
 
                 <button
                     onClick={purchase}
                     className={style.checkoutButton}
                     style={{marginTop: '10px'}}
+                    disabled={isWidgetLoading || !tossOrderData}
                 >
-                    결제
+                    결제하기
                 </button>
             </div>
         </div>
