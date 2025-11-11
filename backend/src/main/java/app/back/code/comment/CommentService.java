@@ -31,7 +31,7 @@ public class CommentService {
                 throw(new EntityNotFoundException("대상으로 할 게시글을 찾을 수 없습니다"));
             }
         }else if("POST".equalsIgnoreCase(targetType)) {
-            if(!postRepository.excistsById(targetId)) {
+            if(!postRepository.existsById(targetId)) {
                 throw(new EntityNotFoundException("대상으로 할 게시글을 찾을 수 없습니다"));
             }
         }else {

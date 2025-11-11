@@ -32,6 +32,8 @@ public class ArticleDTO {
     @NotNull(message = "카테고리는 필수입니다")
     private Long categoryId;
 
+    private String categoryName;
+
     private Boolean isSecret;
 
     public static ArticleDTO fromEntity(ArticleEntity entity){
@@ -43,6 +45,7 @@ public class ArticleDTO {
                 .viewCount(entity.getViewCount())
                 .isSecret(entity.getIsSecret())
                 .categoryId(entity.getCategory().getCategoryId())
+                .categoryName(entity.getCategory().getName())
                 .writer(UserDTO.from(entity.getWriter()))
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())

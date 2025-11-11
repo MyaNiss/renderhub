@@ -19,8 +19,9 @@ const passwordUpdateSchema = yup.object().shape({
 });
 
 export const PasswordUpdate = ({ onModalClose }) => {
-    const { updatePasswordMutation } = useUser();
     const userId = useAuthStore((state) => state.userId);
+    const {logout} = useAuthStore();
+    const { updatePasswordMutation } = useUser(userId);
 
     const {
         register,
@@ -39,15 +40,18 @@ export const PasswordUpdate = ({ onModalClose }) => {
         try{
             const result = await updatePasswordMutation.mutateAsync(formData);
 
-            if(result.resultCode === 200){
+            if(result.resultCode === "200"){
                 alert("비밀번호가 성공적으로 변경되었습니다");
-                onModalClose();
+                logout();
             } else {
                 alert(`비밀번호 변경에 실패했습니다: ${result.message}`);
             }
         } catch (error) {
             console.error("Password update error:", error);
             alert(`비밀번호 변경 중 오류 발생: ${error.message}`);
+        }
+        finally {
+            onModalClose();
         }
     };
 

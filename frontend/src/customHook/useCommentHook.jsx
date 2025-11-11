@@ -13,7 +13,7 @@ export const useComment = () => {
     const queryClient = useQueryClient();
 
     const writeCommentMutation = useMutation({
-        mutationFn: ({resourceType, parentId, formData}) => commentAPI.writeComment({resourceType, parentId, formData}),
+        mutationFn: ({resourceType, parentId, requestBody}) => commentAPI.writeComment({resourceType, parentId, requestBody}),
         onSuccess: (data, variables) => {
             queryClient.invalidateQueries({queryKey: ['comments', variables.resourceType, variables.parentId]});
 
@@ -22,7 +22,7 @@ export const useComment = () => {
     });
 
     const updateCommentMutation = useMutation({
-        mutationFn: ({commentId, formData, resourceType, parentId}) => commentAPI.updateComment({commentId, formData}),
+        mutationFn: ({commentId, requestBody, resourceType, parentId}) => commentAPI.updateComment({commentId, requestBody}),
         onSuccess: (data, variables) => {
             queryClient.invalidateQueries({queryKey: ['comments', variables.resourceType, variables.parentId]});
             console.log("댓글 수정 성공", data);
@@ -30,9 +30,9 @@ export const useComment = () => {
     })
 
     const deleteCommentMutation = useMutation({
-        mutationFn: (commentId) => commentAPI.deleteComment(commentId),
-        onSuccess: () => {
-            queryClient.invalidateQueries({queryKey: ['comments']});
+        mutationFn: ({commentId, resourceType, parentId}) => commentAPI.deleteComment({commentId, resourceType, parentId}),
+        onSuccess: (data, variables) => {
+            queryClient.invalidateQueries({queryKey: ['comments', variables.resourceType, variables.parentId]});
             console.log("댓글 삭제 성공");
         }
     });

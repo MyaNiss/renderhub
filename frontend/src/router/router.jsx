@@ -67,7 +67,7 @@ export const router = createBrowserRouter(
                             element: <OrderHistory />
                         },
                         {
-                            path: ':id',
+                            path: ':orderId',
                             element: <OrderDetail/>
                         },
                         {
@@ -125,6 +125,10 @@ export const router = createBrowserRouter(
                             element: <CustomerServiceUpdate/>
                         }
                     ]
+                },
+                {
+                    path: '/search',
+                    element: <PostList/>
                 },
                 {
                     path: '/post',

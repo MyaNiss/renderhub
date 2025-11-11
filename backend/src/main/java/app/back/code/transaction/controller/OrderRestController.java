@@ -24,17 +24,15 @@ public class OrderRestController {
 
     @GetMapping
     public ResponseEntity<List<UserOrderDTO>> getOrderList(
-            @AuthenticationPrincipal UserSecureDTO userDTO) {
-        String userId = userDTO.getUserId();
+            @AuthenticationPrincipal String userId) {
         List<UserOrderDTO> orderList = orderService.getOrderList(userId);
         return ResponseEntity.ok(orderList);
     }
 
     @GetMapping("/{orderId}")
     public ResponseEntity<UserOrderDTO> getOrderDetail(
-            @AuthenticationPrincipal UserSecureDTO userSecureDTO,
+            @AuthenticationPrincipal String userId,
             @PathVariable Long orderId) throws AccessDeniedException {
-        String userId = userSecureDTO.getUserId();
         UserOrderDTO orderDetail = orderService.getOrderDetails(orderId, userId);
 
         return ResponseEntity.ok(orderDetail);
@@ -43,9 +41,8 @@ public class OrderRestController {
 
     @PostMapping
     public ResponseEntity<UserOrderDTO> initializeOrder(
-            @AuthenticationPrincipal UserSecureDTO userSecureDTO,
+            @AuthenticationPrincipal String userId,
             @RequestBody @Valid PaymentRequestDTO requestDTO) {
-        String userId = userSecureDTO.getUserId();
 
         UserOrderDTO orderDTO = orderService.initializeOrder(
                 userId,
@@ -56,9 +53,8 @@ public class OrderRestController {
 
     @PostMapping("/confirm")
     public ResponseEntity<UserOrderDTO> confirmOrder(
-            @AuthenticationPrincipal UserSecureDTO userSecureDTO,
+            @AuthenticationPrincipal String userId,
             @RequestBody @Valid PaymentConfirmRequestDTO request) {
-        String userId = userSecureDTO.getUserId();
 
         UserOrderDTO confirmedOrder = orderService.confirmOrderTransaction(
                 request.getOrderId(),

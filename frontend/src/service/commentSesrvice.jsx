@@ -17,22 +17,21 @@ export const commentAPI = {
         return res.data;
     },
 
-    writeComment: async ({resourceType, parentId, formData}) => {
+    writeComment: async ({resourceType, parentId, requestBody}) => {
         if (!resourceType || !parentId) {
             throw new Error("게시글 타입과 ID가 필요합니다");
         }
-
-        const res = await api.post(`/api/v1/comments/${resourceType}/${parentId}`, formData);
+        const res = await api.post(`/api/v1/comments/${resourceType}/${parentId}`, requestBody);
 
         return res.data;
     },
 
-    updateComment: async ({commentId, formData}) => {
-        const res = await api.put(`/api/v1/comments/${commentId}`, formData);
+    updateComment: async ({commentId, requestBody}) => {
+        const res = await api.put(`/api/v1/comments/${commentId}`, requestBody);
         return res.data;
     },
 
-    deleteComment: async (commentId) => {
+    deleteComment: async ({commentId, resourceType, parentId}) => {
         const res = await api.delete(`/api/v1/comments/${commentId}`);
         return res.data;
     }

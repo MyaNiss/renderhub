@@ -17,8 +17,8 @@ public class UserSecureDTO extends User{
     private String userId;
     private String userName;
     
-    public UserSecureDTO(String userId, String userName, String passwd, String userRole) {
-        super(userId, passwd, makeGrantedAuthorities(userRole));
+    public UserSecureDTO(String userId, String userName, String passwd, String userRole, boolean isDeleted) {
+        super(userId, passwd, !isDeleted, true, true, true, makeGrantedAuthorities(userRole));
 
         this.userId = userId;
         this.userName = userName;

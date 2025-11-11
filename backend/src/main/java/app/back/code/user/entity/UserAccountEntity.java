@@ -48,15 +48,16 @@ public class UserAccountEntity extends SoftDeleteEntity {
 
     @Setter
     @Lob
-    @Column(name = "contnets")
-    private String contnets = "";
+    @Column(name = "contents", columnDefinition = "TEXT")
+    private String contents = "";
 
     @CreatedDate
     @Column(name = "regist_date", nullable = false, updatable = false)
     private LocalDateTime registDate;
 
+
     @Builder
-    public UserAccountEntity(String userId, UserRoleEntity role, String password, String name, String nickname, String phone, String email, String contnets) {
+    public UserAccountEntity(String userId, UserRoleEntity role, String password, String name, String nickname, String phone, String email, String contents) {
         this.userId = userId;
         this.role = role;
         this.password = password;
@@ -64,11 +65,7 @@ public class UserAccountEntity extends SoftDeleteEntity {
         this.nickname = nickname;
         this.phone = phone;
         this.email = email;
-        this.contnets = contnets != null ? contnets : "";
-    }
-
-    public void updatePassword(String newPassword) {
-        this.password = newPassword;
+        this.contents = contents != null ? contents : "";
     }
 
 }

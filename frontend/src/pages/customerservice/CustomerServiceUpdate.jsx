@@ -6,14 +6,15 @@ import {useCS, useGetCSDetail} from "../../customHook/useCS.jsx";
 import {useForm} from "react-hook-form";
 import {yupResolver} from "@hookform/resolvers/yup";
 import useQuillEditor from "../../customHook/useQuillEditor.jsx";
-import {CS_CATEGORIES} from "../../utils/constants/csCategories.jsx";
 import style from "../../assets/css/cs.common.module.css";
+import {useCategories} from "../../customHook/useCategories.jsx";
+import {CATEGORY_TYPES} from "../../utils/constants/categoryTypes.js";
 
 const schema = yup.object().shape({
-    category: yup.string().required("카테고리를 선택하십시오"),
+    categoryId: yup.number().typeError("카테고리를 선택하십시오").required("카테고리를 선택하십시오"),
     title : yup.string().required("제목을 입력하십시오"),
-    contents : yup.string().required('내용을 입력하십시오'),
-    isPrivate: yup.boolean(),
+    content : yup.string().required('내용을 입력하십시오'),
+    isSecret: yup.boolean(),
 });
 
 const CustomerServiceUpdate = () => {
@@ -22,62 +23,64 @@ const CustomerServiceUpdate = () => {
 
     const currentUserId = useAuthStore(state => state.userId);
     const currentUserRole = useAuthStore(state => state.userRole);
-    const isAdmin = currentUserRole === 'ADMIN';
+    const isAdmin = currentUserRole === 'ROLE_ADMIN';
 
-    const {data: initialData} = useGetCSDetail(csId);
+    const {categories : csCategories} = useCategories(CATEGORY_TYPES.CS);
+
+    const {data: initialData, isLoading} = useGetCSDetail(csId);
 
     const {updateCsMutation} = useCS();
 
     const {register, handleSubmit, formState: {errors}, setValue, watch, reset} = useForm({
         resolver: yupResolver(schema),
         defaultValues: {
-            category: "",
+            categoryId: null,
             title: "",
-            contents: "",
-            isPrivate: false,
+            content: "",
+            isSecret: false,
         }
     });
 
     useEffect(() => {
-        if (initialData) {
+        if (initialData && csCategories.length > 0) {
             reset({
-                category: initialData.category || "",
+                categoryId: Number(initialData.categoryId),
                 title: initialData.title || "",
-                contents: initialData.contents || "",
-                isPrivate: initialData.isPrivate || false,
+                content: initialData.content || "",
+                isSecret: initialData.isSecret || false,
             });
             
-            if(initialData.writer !== currentUserId && !isAdmin) {
+            if(initialData.writer.userId !== currentUserId && !isAdmin) {
                 alert("수정 권한이 없습니다.");
                 navigate(`/cs/${csId}`);
             }
         }
-    }, [initialData, reset]);
+    }, [initialData, reset, csCategories.length]);
 
-    const quillValue = watch('contents');
+    const quillValue = watch('content');
 
     const handleQuillChange = useCallback((value) => {
-        setValue("contents", value, {shouldValidate: true});
+        setValue("content", value, {shouldValidate: true});
     }, [setValue]);
 
     useEffect(() => {
-        register('contents', {required: true});
+        register('content', {required: true});
     }, [register]);
 
     const QuillEditorComponent = useQuillEditor(quillValue, handleQuillChange);
 
     const onSubmit = async (data) => {
         const formData = new FormData();
-        formData.append("id", csId);
-        formData.append("category", data.category);
+        formData.append("csId", csId);
+        formData.append("categoryId", data.categoryId);
         formData.append("title", data.title);
-        formData.append("contents", data.contents);
-        formData.append("isPrivate", data.isPrivate);
+        formData.append("content", data.content);
+        formData.append("isSecret", data.isSecret);
 
         try {
             const result = await updateCsMutation.mutateAsync(formData);
 
-            if(result.resultCode === 200){
+            if(result.resultCode === "200"){
                 alert('문의글이 수정되었습니다');
                 navigate(`/cs/${csId}`);
             }else{
@@ -90,7 +93,7 @@ const CustomerServiceUpdate = () => {
     }
 
     const  { ref : titleRef, ...restTitleProps} = register('title');
-    const {ref: categoryRef, ...restCategoryProps} = register('category');
+    const {ref: categoryRef, ...restCategoryProps} = register('categoryId');
 
     const cancelUpdate = () => {
         if(window.confirm("수정을 취소하고 상세 페이지로 돌아가시겠습니까?")){
@@ -99,8 +102,18 @@ const CustomerServiceUpdate = () => {
     }
 
     const availableCategories = isAdmin
-        ? CS_CATEGORIES
-        : CS_CATEGORIES.filter(cat => cat.value !== 'faq');
+        ? csCategories
+        : csCategories.filter(cat => cat.name !== 'FAQ');
+
+    if (!initialData) {
+        return (
+            <div className={style.container}>
+                <div className={`${style.section} ${style.textCenter}`}>
+                    <h2 className={style.header}>잘못된 접근이거나 게시글을 찾을 수 없습니다.</h2>
+                </div>
+            </div>
+        )
+    }
 
     return (
         <div className={style.container}>
@@ -112,19 +125,19 @@ const CustomerServiceUpdate = () => {
 
                     {/* 1. 카테고리 선택 */}
                     <div className={style.formGroup}>
-                        <label htmlFor="category">카테고리</label>
+                        <label htmlFor="categoryId">카테고리</label>
                         <select
-                            id="category"
+                            id="categoryId"
                             className={style.formInput}
                             ref={categoryRef}
                             {...restCategoryProps}
                         >
                             <option value="">-- 카테고리를 선택하세요 --</option>
                             {availableCategories.map(cat => (
-                                <option key={cat.value} value={cat.value}>{cat.label}</option>
+                                <option key={cat.id} value={cat.id}>{cat.name}</option>
                             ))}
                         </select>
-                        {errors.category && <p className={style.errorMessage}>{errors.category.message}</p>}
+                        {errors.categoryId && <p className={style.errorMessage}>{errors.categoryId.message}</p>}
                     </div>
 
                     {/* 2. 제목 입력 */}
@@ -143,12 +156,12 @@ const CustomerServiceUpdate = () => {
 
                     {/* 3. 내용 입력 (Quill Editor) */}
                     <div className={style.formGroup}>
-                        <label htmlFor="contents">내용</label>
+                        <label htmlFor="content">내용</label>
                         <div className={"quill-wrapper"}>
                             {QuillEditorComponent}
                         </div>
                         <div>
-                            {errors.contents && <p className={style.errorMessage}>{errors.contents.message}</p>}
+                            {errors.content && <p className={style.errorMessage}>{errors.content.message}</p>}
                         </div>
                     </div>
 
@@ -157,8 +170,8 @@ const CustomerServiceUpdate = () => {
                         <label className={style.checkboxLabel}>
                             <input
                                 type="checkbox"
-                                id="isPrivate"
-                                {...register('isPrivate')}
+                                id="isSecret"
+                                {...register('isSecret')}
                                 style={{marginRight: '8px'}}
                             />
                             비밀글로 유지

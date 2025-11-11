@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -19,6 +20,7 @@ public class UserServiceDetails implements UserDetailsService{
     private static final String ROLE_PREFIX = "ROLE_";
   
     @Override
+    @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
         UserAccountEntity user =
@@ -29,8 +31,12 @@ public class UserServiceDetails implements UserDetailsService{
 
         String strippedRole = fullRoleName.startsWith(ROLE_PREFIX) ? fullRoleName.substring(ROLE_PREFIX.length()) : fullRoleName;
 
-        return new UserSecureDTO(user.getUserId(), user.getName(),
-                        user.getPassword(), strippedRole);
+        return new UserSecureDTO(
+                user.getUserId(),
+                user.getName(),
+                user.getPassword(),
+                strippedRole,
+                user.isDeleted());
     }
 
 }

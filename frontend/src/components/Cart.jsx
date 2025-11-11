@@ -25,6 +25,8 @@ const Cart = ({isOpen, onClose, cartItems = []}) => {
 
     const isCartEmpty = cartItems.length === 0;
 
+    const totalItemCount = cartItems.length;
+
     const handleDelete = (postId) => {
         if(window.confirm("장바구니에서 해당 항목을 삭제하시겠습니까?")){
             deleteCartItem.mutate(postId);
@@ -68,7 +70,10 @@ const Cart = ({isOpen, onClose, cartItems = []}) => {
                                 <li key={item.postId} className={style.cartItem}>
                                     <div className={style.itemInfo}>
                                         <p className={style.itemTitle}>
-                                            **{item.title || `상품 ID: ${item.postId}`}** </p>
+                                            **{item.post?.title || `상품 ID: ${item.postId}`}** </p>
+                                        <span className={style.itemPrice}>
+                                            {item.post?.price?.toLocaleString() ?? '가격 정보 없음'} 원
+                                        </span>
                                     </div>
                                     <button
                                         onClick={() => handleDelete(item.postId)}
@@ -83,7 +88,7 @@ const Cart = ({isOpen, onClose, cartItems = []}) => {
                             onClick={moveToBuy}
                             className={style.checkoutButton}
                         >
-                            구매 화면으로 이동 (개 상품)
+                            구매 화면으로 이동 ({totalItemCount}개 상품)
                         </button>
                     </>
                 )}

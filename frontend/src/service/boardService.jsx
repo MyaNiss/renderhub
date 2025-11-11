@@ -3,10 +3,19 @@ import api from "../api/apiClient.jsx";
 
 //게시글 가져오기
 export const boardAPI = {
+
+    getCategories: async () => {
+        const res = await api.get('/api/v1/categories');
+        return res.data;
+    },
+
     getBoardList : async (currentPage = 0, categories = []) => {
         let categoryParams = '';
         if (categories && categories.length > 0) {
-            categoryParams = categories.map(category => `category="${category}"`).join('&');
+            categoryParams = categories
+                .map(id => `categoryId=${id}`)
+                .join('&');
+
             categoryParams = `&${categoryParams}`;
         }
 

@@ -1,6 +1,8 @@
 package app.back.code.user.service;
 
 import app.back.code.article.repository.ArticleRepository;
+import app.back.code.common.dto.SimplePostDTO;
+import app.back.code.post.entity.PostEntity;
 import app.back.code.post.repository.PostRepository;
 import app.back.code.user.dto.UserDTO;
 import app.back.code.user.entity.UserAccountEntity;
@@ -9,6 +11,9 @@ import app.back.code.user.entity.UserRoleEntity;
 import app.back.code.user.repository.UserBankRepository;
 import app.back.code.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +30,17 @@ public class UserService {
     private final ArticleRepository articleRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserRoleService roleService;
+
+    public boolean reAuthenticate(String userId, String currentPassword) {
+        UserAccountEntity user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다"));
+
+        if(!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            return false;
+        }
+
+        return true;
+    }
 
     @Transactional
     public UserDTO saveUser(UserDTO dto) {
@@ -48,18 +64,57 @@ public class UserService {
     public UserDTO updateUser(String currentUserId, UserDTO dto) {
         UserAccountEntity user = userRepository.findById(currentUserId).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다"));
 
-        user.setNickname(dto.getNickname());
-        user.setName(dto.getName());
-        user.setPhone(dto.getPhone());
-        user.setContnets(dto.getContents());
+        if(dto.getNickname() != null){
+            user.setNickname(dto.getNickname());
+        }
 
-        return UserDTO.from(user);
+        if(dto.getName() != null) {
+            user.setName(dto.getName());
+        }
+
+        if(dto.getEmail() != null) {
+            user.setEmail(dto.getEmail());
+        }
+
+        if(dto.getPhone() != null) {
+            user.setPhone(dto.getPhone());
+        }
+
+        if (dto.getContents() != null) {
+            user.setContents(dto.getContents());
+        }
+
+        UserAccountEntity savedUser = userRepository.save(user);
+
+        return UserDTO.from(savedUser);
+    }
+
+    @Transactional
+    public void updatePassword(String userId, String currentPassword, String newPassword) {
+        UserAccountEntity user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다"));
+
+        if(!passwordEncoder.matches(currentPassword, user.getPassword())){
+            throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다");
+        }
+
+        String newEncryptedPassword = passwordEncoder.encode(newPassword);
+        user.setPassword(newEncryptedPassword);
     }
 
     @Transactional
     public void deleteUser(String currentUserId) {
         UserAccountEntity user = userRepository.findById(currentUserId).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다"));
+
+        List<PostEntity> userPosts = postRepository.findAllByWriter(user);
+
+        for(PostEntity postEntity : userPosts){
+            postEntity.delete();
+        }
+
         user.delete();
+
+        userRepository.save(user);
     }
 
     public UserDTO findPrivateUserById(String userId) {
@@ -81,16 +136,17 @@ public class UserService {
     public UserDTO findPublicUserById(String userId) {
         UserAccountEntity user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다"));
 
-        List<Long> postIds = postRepository.findPostIdByWriter_UserId(userId);
-        List<Long> articleIds = articleRepository.findArticleIdByWriter_UserId(userId);
+        List<SimplePostDTO> postList = postRepository.findPostsByWriter_UserId(userId);
+        List<SimplePostDTO> articleList = articleRepository.findArticlesByWriter_UserId(userId);
 
         return UserDTO.builder()
                 .userId(user.getUserId())
                 .nickname(user.getNickname())
-                .contents(user.getContnets())
+                .email(user.getEmail())
+                .contents(user.getContents() != null ? user.getContents() : "")
                 .registDate(user.getRegistDate())
-                .postIds(postIds)
-                .articleIds(articleIds)
+                .postList(postList)
+                .articleList(articleList)
                 .build();
     }
 

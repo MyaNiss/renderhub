@@ -25,18 +25,19 @@ const CommentEditForm = ({comment, resourceType, parentId, onCancel}) => {
             return;
         }
 
-        const formData = new FormData();
-        formData.append("comment", comment.content);
+        const requestBody = {
+            content: data.content
+        };
 
         try{
             const result = await updateCommentMutation.mutateAsync({
-                commentId:comment.id,
-                formData:formData,
-                resourceType:resourceType,
-                parentId:parentId
+                commentId: comment.commentId,
+                requestBody: requestBody,
+                resourceType: resourceType,
+                parentId: parentId
             });
 
-            if(result.resultCode === 200){
+            if(result.resultCode === "200"){
                 alert("댓글이 성공적으로 수정되었습니다");
                 onCancel();
             } else{
@@ -52,7 +53,7 @@ const CommentEditForm = ({comment, resourceType, parentId, onCancel}) => {
             <div className={commentStyle.formGroup}>
                 {/* 작성자 정보 */}
                 <div className={commentStyle.commentMeta}>
-                    <span className={commentStyle.commentWriter}>{comment.writer || '익명'}</span>
+                    <span className={commentStyle.commentWriter}>{comment.writer.nickname || '익명'}</span>
                     <span className={commentStyle.commentDate}>{comment.createdAt || 'N/A'}</span>
                     <span className={commentStyle.editingNotice}>(수정 중)</span>
                 </div>
@@ -60,7 +61,7 @@ const CommentEditForm = ({comment, resourceType, parentId, onCancel}) => {
                 {/* 텍스트 영역 */}
                 <textarea
                     className={commentStyle.formTextarea}
-                    id={`edit-content-${comment.id}`}
+                    id={`edit-content-${comment.commentId}`}
                     placeholder="수정할 댓글을 입력하세요..."
                     {...register('content')}
                 />

@@ -1,5 +1,6 @@
 package app.back.code.file.service;
 
+import app.back.code.common.entity.CategoryEntity;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,6 +17,10 @@ public class StorageService {
 
 
     private static final String UPLOADS_URL_ROOT = "/uploads/";
+
+    public String saveFile(MultipartFile file, String fileUseType) throws Exception {
+        return saveFile(file, fileUseType, null);
+    }
 
     public String saveFile(MultipartFile file, String fileUseType, String subDirName) throws Exception {
         if(file == null || file.isEmpty()) {

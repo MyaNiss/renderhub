@@ -4,8 +4,8 @@ import app.back.code.article.DTO.ArticleDTO;
 import app.back.code.article.entity.ArticleEntity;
 import app.back.code.article.entity.ArticleType;
 import app.back.code.article.repository.ArticleRepository;
-import app.back.code.article.repository.CategoryRepository;
 import app.back.code.common.entity.CategoryEntity;
+import app.back.code.common.repository.CategoryRepository;
 import app.back.code.common.utils.HtmlParserUtils;
 import app.back.code.file.service.FileService;
 import app.back.code.user.entity.UserAccountEntity;
@@ -13,12 +13,13 @@ import app.back.code.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -32,13 +33,19 @@ public class ArticleService {
     private final HtmlParserUtils htmlParserUtils;
 
     public Page<ArticleDTO> getArticleList(ArticleType articleType, List<Long> categoryIds, Pageable pageable){
+        Pageable sortedPageable = PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                Sort.by("articleId").descending()
+        );
+
         Page<ArticleEntity> articles;
 
         if(categoryIds != null && !categoryIds.isEmpty()){
 
-            articles = articleRepository.findByTypeAndCategory_CategoryIdIn(articleType, categoryIds, pageable);
+            articles = articleRepository.findByTypeAndCategory_CategoryIdIn(articleType, categoryIds, sortedPageable);
         } else {
-            articles = articleRepository.findByType(articleType, pageable);
+            articles = articleRepository.findByType(articleType, sortedPageable);
         }
 
         return articles.map(ArticleDTO::fromEntity);

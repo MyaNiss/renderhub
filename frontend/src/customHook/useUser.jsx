@@ -16,7 +16,7 @@ export const useUser = (userId, isPublic = true) => {
     });
 
     const updateUserMutation = useMutation({
-        mutationFn: (formData) => userAPI.updateUser(formData),
+        mutationFn: (dataToSend) => userAPI.updateUser(dataToSend),
         onSuccess: () => {
             alert("회원 정보가 수정되었습니다");
 
@@ -39,5 +39,12 @@ export const useUser = (userId, isPublic = true) => {
         }
     });
 
-    return{getUserProfile,updateUserMutation,registerUserMutation,deleteUserMutation};
+    const updatePasswordMutation = useMutation({
+        mutationFn: (formData) => userAPI.updatePassword(formData),
+        onSuccess: () => {
+            queryClient.invalidateQueries({queryKey: ['userProfile']});
+        }
+    })
+
+    return{getUserProfile,updateUserMutation,registerUserMutation,deleteUserMutation, updatePasswordMutation};
 }

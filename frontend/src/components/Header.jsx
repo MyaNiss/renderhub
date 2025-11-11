@@ -4,13 +4,15 @@ import style from '../assets/css/header.module.css'
 import ProfileDropdown from "./ProfileDropdown.jsx";
 import {useAuthStore} from "../store/authStore.jsx";
 import useSearch from "../customHook/useSearch.jsx";
-import {useLocation} from "react-router";
+import {useLocation, useNavigate} from "react-router";
 import Cart from "./Cart.jsx";
 import {useCart} from "../customHook/useCart.jsx";
 import {accountAPI} from "../service/accountService.jsx";
+import {useQueryClient} from "@tanstack/react-query";
 
 const Header = () => {
-
+    const queryClient = useQueryClient();
+    const navigate = useNavigate();
     const location = useLocation();
     const isHomePage = location.pathname === "/";
     const {logout : storeLogout} = useAuthStore();
@@ -20,10 +22,13 @@ const Header = () => {
             const result = await accountAPI.logout();
             console.log("로그아웃");
 
-
             if(result.resultCode === 200){
                 console.log("로그아웃 성공");
                 storeLogout();
+
+                await queryClient.invalidateQueries({queryKey: ['userProfile']});
+
+                navigate(0);
             }else{
                 alert('로그아웃 실패');
             }
@@ -35,6 +40,7 @@ const Header = () => {
     const userName = useAuthStore((state) => state.userName);
 
     const [isCartOpen, setIsCartOpen] = useState(false);
+    const {getCartItems} = useCart(isCartOpen);
 
     const openCart = useCallback(() => {
         setIsCartOpen(true);
@@ -44,9 +50,8 @@ const Header = () => {
         setIsCartOpen(false);
     })
 
-    const {getCartItems} = useCart(isCartOpen);
 
-    const cartItems = getCartItems.data ?? [];
+    const cartItems = getCartItems.data?.cartItems ?? [];
 
     const {searchTerm, setSearchTerm, handleSearch} = useSearch();
 
@@ -87,7 +92,7 @@ const Header = () => {
                     {isAuthenticated ? (
                         <ProfileDropdown
                             username={userName}
-                            // onLogout={logout}
+                            onLogout={logout}
                             openCart={openCart}
                         />
                     ) : (

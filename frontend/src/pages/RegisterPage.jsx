@@ -40,7 +40,7 @@ const RegisterPage = () => {
         try {
             const response = await accountAPI.register(registerData);
 
-            if (response && response.resultCode === 200) {
+            if (response && response.resultCode === "200") {
                 alert('회원가입이 완료되었습니다!');
                 navigate('/login');
             } else {

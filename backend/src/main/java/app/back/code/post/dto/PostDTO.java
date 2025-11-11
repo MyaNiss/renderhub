@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
-@Builder
+@Builder(toBuilder = true)
 public class PostDTO {
 
     private Long postId;
@@ -36,18 +36,27 @@ public class PostDTO {
     private Long categoryId;
     private Long fileTypeId;
 
+    private String categoryName;
+    private String fileTypeName;
+
     private List<String> imageUrls;
     private String productFileUrl;
     private String productFileName;
 
+    private boolean keepExistingFile;
+
     private Boolean isPurchased = false;
 
     public static PostDTO fromEntity(PostEntity entity){
+        String categoryName = entity.getCategory() != null ? entity.getCategory().getName() : null;
+        String fileTypeName = entity.getFileType() != null ? entity.getFileType().getName() : null;
         return PostDTO.builder()
                 .postId(entity.getPostId())
                 .writer(UserDTO.from(entity.getWriter()))
                 .categoryId(entity.getCategory().getCategoryId())
-                .fileTypeId(entity.getCategory().getCategoryId())
+                .fileTypeId(entity.getFileType().getCategoryId())
+                .categoryName(categoryName)
+                .fileTypeName(fileTypeName)
                 .title(entity.getTitle())
                 .content(entity.getContent())
                 .price(entity.getPrice())

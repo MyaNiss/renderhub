@@ -32,7 +32,6 @@ public class WebConfig implements WebMvcConfigurer{
 
 
 
-
     //파일제한
     @Bean
     public MultipartConfigElement multipartConfigElement(){

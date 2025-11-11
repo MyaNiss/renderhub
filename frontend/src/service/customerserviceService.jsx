@@ -4,26 +4,28 @@ import api from "../api/apiClient.jsx";
 export const csAPI = {
 
     getCsList: async ({currentPage = 0, categories = [], userId = null, userRole = null}) => {
-        let categoryParams = '';
+        const params = [];
+
+        params.push(`currentPage=${currentPage}`);
+
         if (categories && categories.length > 0) {
-            categoryParams = categories.map(category => `category=${category}`).join('&');
+            const categoryString = categories
+                .map(id => `categoryId=${id}`)
+                .join('&');
+
+            params.push(categoryString);
         }
 
-        let authParams = '';
-        if (userId) {
-            authParams += `&userId=${userId}`;
-        }
-        if (userRole) {
-            authParams += `&userRole=${userRole}`;
-        }
+        // if (userId) {
+        //     params.push(`userId=${userId}`);
+        // }
+        // if (userRole) {
+        //     params.push(`userRole=${userRole}`);
+        // }
 
-        const queryParams = [
-            `currentPage=${currentPage}`,
-            categoryParams,
-            authParams
-        ].filter(p => p).join('&');
+        const queryString = params.join('&');
 
-        const res = await api.get(`/api/v1/cs/list?${queryParams}`);
+        const res = await api.get(`/api/v1/cs/list?${queryString}`);
         return res.data;
     },
 

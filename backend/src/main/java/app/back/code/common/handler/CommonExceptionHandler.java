@@ -6,6 +6,7 @@ import app.back.code.common.dto.ErrorCodeEnum;
 import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -77,6 +78,18 @@ public class CommonExceptionHandler {
 
         return ResponseEntity
                 .status(ErrorCodeEnum.INVALID_PARAMETER.getStatus())
+                .body(apiErrorResponse);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiErrorResponse> handleIllegalArgumentException(IllegalArgumentException e) {
+        log.error("==== IllegalArgumentException : {} ====", e.getMessage());
+
+        ApiErrorResponse apiErrorResponse = ApiErrorResponse
+                .error("400", e.getMessage());
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
                 .body(apiErrorResponse);
     }
 

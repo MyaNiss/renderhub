@@ -4,7 +4,7 @@ import api from "../api/apiClient.jsx";
 export const cartAPI = {
 
     getCart: async () => {
-        const res = await api().get('/api/v1/cart');
+        const res = await api.get('/api/v1/cart');
         return res.data;
     },
 

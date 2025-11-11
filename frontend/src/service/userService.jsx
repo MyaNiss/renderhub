@@ -6,9 +6,9 @@ export const userAPI = {
         let url;
 
         if(isPublic){
-            url = `/api/users/${userId}/public`;
+            url = `/api/v1/user/${userId}/public`;
         } else {
-            url = `/api/users/${userId}`;
+            url = `/api/v1/user/${userId}`;
         }
 
         const res = await api.get(url);
@@ -24,11 +24,11 @@ export const userAPI = {
         return res.data;
     },
 
-    updateUser: async (formData) => {
-        if(!formData) {
+    updateUser: async (dataToSend) => {
+        if(!dataToSend) {
             throw new Error("수정할 정보가 필요합니다");
         }
-        const res = await api.put('/api/v1/user', formData);
+        const res = await api.put('/api/v1/user', dataToSend);
         return res.data;
     },
 
@@ -37,10 +37,13 @@ export const userAPI = {
         return res.data;
     },
 
-    reAuthenticateUser: async (password) => {
-        const res = await api.post('/api/v1/reAuth', {
-            password : password
-        });
+    reAuthenticateUser: async (dataToSend) => {
+        const res = await api.post('/api/v1/user/reAuth', dataToSend);
+        return res.data;
+    },
+
+    updatePassword: async (dataToSend) => {
+        const res = await api.post('/api/v1/user/password', dataToSend);
         return res.data;
     }
 }

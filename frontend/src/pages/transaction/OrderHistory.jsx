@@ -32,7 +32,7 @@ const OrderHistory = () => {
             >
                 ⬅️ 뒤로가기
             </button>
-            <h2>나의 주문 내역 ({orders.length} 건)</h2>
+            <h2>나의 거래 내역 ({orders.length} 건)</h2>
             <ul style={{ listStyle: 'none', padding: 0 }}>
                 {orders.map((order) => (
                     <li
@@ -40,7 +40,7 @@ const OrderHistory = () => {
                         className={style.orderItem}
                     >
                         <p><strong>주문 번호:</strong> {order.orderId}</p>
-                        <p><strong>주문일:</strong> {new Date(order.orderDate).toLocaleDateString()}</p>
+                        <p><strong>주문일:</strong> {new Date(order.createdAt).toLocaleDateString()}</p>
                         <p><strong>총 결제 금액:</strong> {order.totalPrice.toLocaleString()} 원</p>
                         <p><strong>상태:</strong> <span className={style.statusText}>{order.status}</span></p>
 

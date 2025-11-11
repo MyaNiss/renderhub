@@ -3,6 +3,7 @@ import {useForm} from "react-hook-form";
 import {yupResolver} from "@hookform/resolvers/yup";
 import style from "../assets/css/user.common.module.css";
 import {useReAuthenticate} from "../customHook/useReAuthenticate.jsx";
+import {useAuthStore} from "../store/authStore.jsx";
 
 
 const reAuthSchema = yup.object().shape({
@@ -10,6 +11,7 @@ const reAuthSchema = yup.object().shape({
 });
 
 export const ReAuthenticateModal = ({ onModalClose, onSuccess, action }) => {
+    const userId = useAuthStore(state => state.userId);
     const {reAuthenticationMutation} = useReAuthenticate();
 
     const {register, handleSubmit, formState:{errors}} = useForm({
@@ -18,10 +20,14 @@ export const ReAuthenticateModal = ({ onModalClose, onSuccess, action }) => {
     });
 
     const onSubmit = async (data) => {
+        const dataToSend = {
+            userId: userId,
+            password: data.currentPassword,
+        }
         try{
-            const result = await reAuthenticationMutation.mutateAsync(data.currentPassword);
+            const result = await reAuthenticationMutation.mutateAsync(dataToSend);
 
-            if(result.resultCode === 200) {
+            if(result.resultCode === "200") {
                 console.log('비밀번호가 맞습니다')
                 onSuccess();
                 onModalClose();

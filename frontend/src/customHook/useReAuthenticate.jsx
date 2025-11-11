@@ -7,7 +7,7 @@ export const useReAuthenticate = () => {
     const queryClient = useQueryClient();
 
     const reAuthenticationMutation = useMutation({
-        mutationFn: (password) => userAPI.reAuthenticateUser(password),
+        mutationFn: (dataToSend) => userAPI.reAuthenticateUser(dataToSend),
 
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['user'] });

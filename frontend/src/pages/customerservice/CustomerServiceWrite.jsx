@@ -7,62 +7,62 @@ import useQuillEditor from "../../customHook/useQuillEditor.jsx";
 import {useCS} from "../../customHook/useCS.jsx";
 import style from "../../assets/css/cs.common.module.css"
 import {useForm} from "react-hook-form";
-import {CS_CATEGORIES} from "../../utils/constants/csCategories.jsx";
+import {useCategories} from "../../customHook/useCategories.jsx";
+import {CATEGORY_TYPES} from "../../utils/constants/categoryTypes.js";
 
 const schema = yup.object().shape({
-    category: yup.string().required("카테고리를 선택하십시오"),
+    categoryId: yup.number().typeError("카테고리를 선택하십시오").required("카테고리를 선택하십시오"),
     title : yup.string().required("제목을 입력하십시오"),
-    contents : yup.string().required('내용을 입력하십시오'),
-    isPrivate: yup.boolean()
+    content : yup.string().required('내용을 입력하십시오'),
+    isSecret: yup.boolean()
 });
 
 const CustomerServiceWrite = () => {
     const navigate = useNavigate();
     const currentUserId = useAuthStore(state => state.userId);
+    const currentUserRole = useAuthStore(state => state.userRole);
+    const isAdmin = currentUserRole === 'ROLE_ADMIN';
+
+    const { categories: csCategories } = useCategories(CATEGORY_TYPES.CS);
 
     const {register, handleSubmit, formState: {errors}, setValue, watch} = useForm({
         resolver: yupResolver(schema),
         defaultValues: {
-            category: "",
+            categoryId: null,
             title: "",
-            contents: "",
-            isPrivate: false,
+            content: "",
+            isSecret: false,
         }
     });
 
-    const quillValue = watch('contents');
+    const quillValue = watch('content');
 
     const handleQuillChange = useCallback((value) => {
-        setValue("contents", value, {shouldValidate: true});
+        setValue("content", value, {shouldValidate: true});
     }, [setValue]);
 
     useEffect(() => {
-        register('contents', {required: true});
+        register('content', {required: true});
     }, [register]);
 
     const QuillEditorComponent = useQuillEditor(quillValue, handleQuillChange);
 
-    const {createBoardMutation: createCsMutation} = useCS();
+    const {writeCsMutation} = useCS();
 
     const onSubmit = async (data) => {
         console.log("폼 데이터", data);
 
         const formData = new FormData();
-        formData.append("category", data.category);
+        formData.append("categoryId", data.categoryId);
         formData.append("title", data.title);
-        formData.append("contents", data.contents);
-        formData.append("isPrivate", data.isPrivate);
-        formData.append("writerId", currentUserId);
+        formData.append("content", data.content);
+        formData.append("isSecret", data.isSecret);
 
         try {
-            const result = await createCsMutation.mutateAsync(formData);
+            const result = await writeCsMutation.mutateAsync(formData);
 
-            if(result.resultCode === 200){
-                navigate('/cs');
-            }else{
-                alert('문의글 등록에 실패하였습니다');
-                return false;
-            }
+            alert("게시글이 등록되었습니다");
+            navigate('/cs');
 
         } catch (error) {
             console.error("문의글 등록 중 에러:", error);
@@ -70,13 +70,17 @@ const CustomerServiceWrite = () => {
     }
 
     const  { ref : titleRef, ...restTitleProps} = register('title');
-    const {ref: categoryRef, ...restCategoryProps} = register('category');
+    const {ref: categoryRef, ...restCategoryProps} = register('categoryId');
 
     const writeCancel = () => {
         if(window.confirm("작성을 취소하고 목록으로 돌아가시겠습니까?")){
             navigate('/cs');
         }
     }
+
+    const availableCategories = isAdmin
+        ? csCategories
+        : csCategories.filter(cat => cat.name !== 'FAQ');
 
     return (
         <div className={style.container}>
@@ -88,19 +92,19 @@ const CustomerServiceWrite = () => {
 
                     {/* 1. 카테고리 선택 */}
                     <div className={style.formGroup}>
-                        <label htmlFor="category">카테고리</label>
+                        <label htmlFor="categoryId">카테고리</label>
                         <select
-                            id="category"
+                            id="categoryId"
                             className={style.formInput}
                             ref={categoryRef}
                             {...restCategoryProps}
                         >
                             <option value="">-- 카테고리를 선택하세요 --</option>
-                            {CS_CATEGORIES.map(category => (
-                                <option key={category.value} value={category.value}>{category.label}</option>
+                            {availableCategories.map(category => (
+                                <option key={category.id} value={category.id}>{category.name}</option>
                             ))}
                         </select>
-                        {errors.category && <p className={style.errorMessage}>{errors.category.message}</p>}
+                        {errors.categoryId && <p className={style.errorMessage}>{errors.categoryId.message}</p>}
                     </div>
 
 
@@ -120,12 +124,12 @@ const CustomerServiceWrite = () => {
 
                     {/* 3. 내용 입력 (Quill Editor) */}
                     <div className={style.formGroup}>
-                        <label htmlFor="contents">내용</label>
+                        <label htmlFor="content">내용</label>
                         <div className={"quill-wrapper"}>
                             {QuillEditorComponent}
                         </div>
                         <div>
-                            {errors.contents && <p className={style.errorMessage}>{errors.contents.message}</p>}
+                            {errors.content && <p className={style.errorMessage}>{errors.content.message}</p>}
                         </div>
                     </div>
 
@@ -134,8 +138,8 @@ const CustomerServiceWrite = () => {
                         <label className={style.checkboxLabel}>
                             <input
                                 type="checkbox"
-                                id="isPrivate"
-                                {...register('isPrivate')}
+                                id="isSecret"
+                                {...register('isSecret')}
                                 style={{marginRight: '8px'}}
                             />
                             비밀글로 등록

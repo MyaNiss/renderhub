@@ -7,6 +7,7 @@ import * as yup from "yup";
 import {useForm} from "react-hook-form";
 import {yupResolver} from "@hookform/resolvers/yup";
 import Pagination from "../../components/Pagination.jsx";
+import {useQueryClient} from "@tanstack/react-query";
 
 const contentsUpdateSchema = yup.object().shape({
     contents: yup.string()
@@ -42,10 +43,13 @@ const BoardListItem = ({ item }) => {
 
 const UserPage = () => {
     const {targetUserId} = useParams();
+    const queryClient = useQueryClient();
 
     const {getUserProfile, updateUserMutation} = useUser(targetUserId);
 
-    const {data : userData} = getUserProfile;
+    const {data : responseData, isLoading, isError, error} = getUserProfile;
+
+    const userData = responseData?.content;
 
     const currentUserId = useAuthStore(state => state.userId);
 
@@ -53,7 +57,7 @@ const UserPage = () => {
         userId = 'admin',
         nickname,
         contents,
-        boardList = [],
+        articleList = [],
         postList = []
     } = userData || {};
 
@@ -79,7 +83,7 @@ const UserPage = () => {
         return list.slice(startIndex, endIndex);
     };
 
-    const boardsToDisplay = getPaginatedItems(boardList, boardPage, PAGE_PER_ROWS);
+    const articlesToDisplay = getPaginatedItems(articleList, boardPage, PAGE_PER_ROWS);
     const postsToDisplay = getPaginatedItems(postList, postPage, PAGE_PER_ROWS);
 
     const isOwnPage = userId === currentUserId;
@@ -88,7 +92,7 @@ const UserPage = () => {
 
     useEffect(() => {
         if(userData){
-            reset({contents: userData.contents || ''});
+            reset({contents: userData || ''});
         }
     }, [userData, reset]);
 
@@ -108,10 +112,21 @@ const UserPage = () => {
             return;
         }
 
-        try{
-            const result = await updateUserMutation.mutateAsync(formData);
+        const dataToSend = {
+            userId : userId,
+            nickname : nickname,
+            email : userData.email,
+            name : userData.name,
+            phone : userData.phone,
+            contents : formData.contents
+        }
 
-            if(result && result.resultCode === 200){
+        try{
+            const result = await updateUserMutation.mutateAsync(dataToSend);
+            console.log(result);
+
+            if(result.resultCode === "200"){
+                console.log("정상작동")
                 setIsEditing(false);
             } else {
                 alert('소개글 수정에 실패했습니다');
@@ -191,11 +206,11 @@ const UserPage = () => {
                     {/* --- 왼쪽: 게시판 글 목록 (BoardList) --- */}
                     <section className={style.splitColumn}>
                         <h2 className={style.formTitle} style={{ fontSize: '1.5rem', marginTop: '0', marginBottom: '20px' }}>
-                            작성한 게시판 글 ({boardList.length}개)
+                            작성한 게시판 글 ({articleList.length}개)
                         </h2>
                         <div className={style.boardListGrid}>
-                            {boardsToDisplay.length > 0 ? (
-                                boardsToDisplay.map(boardItem => (
+                            {articlesToDisplay.length > 0 ? (
+                                articlesToDisplay.map(boardItem => (
                                     <BoardListItem key={`board-${boardItem.id}`} item={boardItem} />
                                 ))
                             ) : (
@@ -204,7 +219,7 @@ const UserPage = () => {
                         </div>
 
                         <Pagination
-                            totalRows={boardList.length}
+                            totalRows={articleList.length}
                             page={boardPage}
                             movePage={setBoardPage}
                         />

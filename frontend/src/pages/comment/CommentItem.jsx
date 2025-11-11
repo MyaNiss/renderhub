@@ -10,12 +10,12 @@ const CommentItem = ({comment, resourceType, parentId}) => {
     const { deleteCommentMutation } = useComment();
 
     const [isEditing, setEditing] = useState(false);
-    const isAuthor = comment.writer === currentUserId;
+    const isAuthor = comment.writer.userId === currentUserId;
 
     const handleDeleteComment = async () => {
         if(window.confirm("댓글을 삭제하시겠습니까?")){
             await deleteCommentMutation.mutateAsync({
-                commentId: comment.id,
+                commentId: comment.commentId,
                 resourceType: resourceType,
                 parentId: parentId
             });
@@ -45,7 +45,7 @@ const CommentItem = ({comment, resourceType, parentId}) => {
     return (
         <li className={commentStyle.commentItem}>
             <div className={commentStyle.commentMeta}>
-                <span className={commentStyle.commentWriter}>{comment.writer || '익명'}</span>
+                <span className={commentStyle.commentWriter}>{comment.writer.nickname || '익명'}</span>
                 <span className={commentStyle.commentDate}>{comment.createdAt || 'N/A'}</span>
             </div>
 

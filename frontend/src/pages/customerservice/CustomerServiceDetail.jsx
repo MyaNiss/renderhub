@@ -4,7 +4,6 @@ import style from "../../assets/css/cs.common.module.css";
 import CommentForm from "../comment/CommentForm.jsx";
 import CommentList from "../comment/CommentList.jsx";
 import {useAuthStore} from "../../store/authStore.jsx";
-import {CS_CATEGORIES} from "../../utils/constants/csCategories.jsx";
 import {useCS, useGetCSDetail} from "../../customHook/useCS.jsx";
 
 const CustomerServiceDetail = () => {
@@ -13,7 +12,7 @@ const CustomerServiceDetail = () => {
 
     const currentUserId = useAuthStore((state) => state.userId);
     const currentUserRole = useAuthStore((state) => state.userRole);
-    const isAdmin = currentUserRole === 'ADMIN';
+    const isAdmin = currentUserRole === 'USER_ADMIN';
 
     const {deleteCsMutation} = useCS();
 
@@ -38,7 +37,7 @@ const CustomerServiceDetail = () => {
         try {
             const result = await deleteCsMutation.mutateAsync(csId);
 
-            if (result.resultCode === 200) {
+            if (result.resultCode === "200") {
                 console.log('고객 지원 글이 삭제되었습니다');
                 moveToList();
             } else {
@@ -76,11 +75,10 @@ const CustomerServiceDetail = () => {
         )
     }
 
-    const isAuthor = cs.writer === currentUserId;
+    const isAuthor = cs.writer.userId === currentUserId;
     const canManage = isAuthor || isAdmin;
 
-    // 카테고리 라벨 표시용 (옵션: cs 객체에 category 필드가 있다고 가정)
-    const categoryLabel = CS_CATEGORIES.find(c => c.value === cs.category)?.label || '기타';
+    const categoryLabel = cs.categoryName || 기타;
 
     return (
         <div className={style.container}>
@@ -92,16 +90,16 @@ const CustomerServiceDetail = () => {
                     <h1 className={style.detailTitle}>[{categoryLabel}] {cs.title}</h1>
                     <div className={style.detailMetaContainer}>
                         {cs.isPrivate && <span>🔒 비밀글 </span>}
-                        <span>작성자 : <span className={style.detailMetaText}>{cs.writer}</span> </span>
-                        <span>등록일 : <span className={style.detailMetaText}>{cs.createDate}</span> </span>
-                        <span>수정일 : <span className={style.detailMetaText}>{cs.updateDate}</span> </span>
+                        <span>작성자 : <span className={style.detailMetaText}>{cs.writer.nickname}</span> </span>
+                        <span>등록일 : <span className={style.detailMetaText}>{cs.createdAt}</span> </span>
+                        <span>수정일 : <span className={style.detailMetaText}>{cs.updatedAt}</span> </span>
                     </div>
                 </div>
 
                 <div className={style.formGroup}>
                     <label>문의 내용</label>
                     <div className={style.detailContentsArea}>
-                        <div dangerouslySetInnerHTML={{__html: cs.contents}}></div>
+                        <div dangerouslySetInnerHTML={{__html: cs.content}}></div>
                     </div>
                 </div>
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {Outlet} from "react-router";
 import FloatingBanner from "../components/FloatingBanner.jsx";
 import Header from "../components/Header.jsx";

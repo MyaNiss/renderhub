@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.Optional;
+
 @Getter
 @Builder
 public class CartDTO {
@@ -16,11 +18,14 @@ public class CartDTO {
     @NotNull(message = "상품 ID는 필수입니다")
     private Long postId;
 
+    private Long price;
+
     public static CartDTO fromEntity(CartEntity entity) {
         return CartDTO.builder()
                 .id(entity.getId())
                 .postId(entity.getPost().getPostId())
                 .post(PostDTO.fromEntity(entity.getPost()))
+                .price(PostDTO.fromEntity(entity.getPost()).getPrice())
                 .build();
     }
 }

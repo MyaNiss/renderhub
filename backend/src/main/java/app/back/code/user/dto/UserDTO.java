@@ -1,5 +1,6 @@
 package app.back.code.user.dto;
 
+import app.back.code.common.dto.SimplePostDTO;
 import app.back.code.user.entity.UserAccountEntity;
 import app.back.code.user.entity.UserRoleEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -48,8 +49,8 @@ public class UserDTO {
     private String accountNumber;
     private String accountHolder;
 
-    private List<Long> postIds;
-    private List<Long> articleIds;
+    private List<SimplePostDTO> postList;
+    private List<SimplePostDTO> articleList;
 
     public UserAccountEntity toEntity(UserRoleEntity role, String encryptedPassword){
         return UserAccountEntity.builder()
@@ -59,7 +60,7 @@ public class UserDTO {
                 .name(this.name)
                 .email(this.email)
                 .phone(this.phone)
-                .contnets(this.contents)
+                .contents(this.contents)
                 .role(role)
                 .build();
     }
@@ -71,7 +72,7 @@ public class UserDTO {
                 .name(entity.getName())
                 .email(entity.getEmail())
                 .phone(entity.getPhone())
-                .contents(entity.getContnets())
+                .contents(entity.getContents())
                 .roleName(entity.getRole().getName())
                 .isDeleted(entity.isDeleted())
                 .registDate(entity.getRegistDate())

@@ -4,6 +4,7 @@ import app.back.code.article.DTO.ArticleDTO;
 import app.back.code.article.entity.ArticleEntity;
 import app.back.code.article.entity.ArticleType;
 import app.back.code.article.service.ArticleService;
+import app.back.code.common.dto.ApiResponse;
 import app.back.code.security.dto.UserSecureDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +27,7 @@ public class BoardRestController {
 
     @GetMapping("/list")
     public ResponseEntity<Page<ArticleDTO>> getBoardList(@RequestParam(defaultValue = "0")int currentPage,
-                                                         @RequestParam(required = false)List<Long> categoryIds){
+                                                         @RequestParam(value = "categoryId", required = false)List<Long> categoryIds){
         Pageable pageable = PageRequest.of(currentPage, 10);
         Page<ArticleDTO> list = articleService.getArticleList(ArticleType.BOARD, categoryIds, pageable);
 
@@ -35,8 +36,7 @@ public class BoardRestController {
 
     @PostMapping
     public ResponseEntity<ArticleDTO> write(@Valid ArticleDTO request,
-                                            @AuthenticationPrincipal UserSecureDTO userSecureDTO) {
-        String writerId = userSecureDTO.getUserId();
+                                            @AuthenticationPrincipal String userId) {
 
         ArticleDTO newArticle = ArticleDTO.builder()
                 .title(request.getTitle())
@@ -46,7 +46,7 @@ public class BoardRestController {
                 .type(ArticleType.BOARD)
                 .build();
 
-        ArticleDTO createdArticle = articleService.createArticle(newArticle, writerId);
+        ArticleDTO createdArticle = articleService.createArticle(newArticle, userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdArticle);
     }
 
@@ -62,21 +62,19 @@ public class BoardRestController {
     }
 
     @PutMapping("/{boardId}")
-    public ResponseEntity<ArticleDTO> update(@PathVariable("boardId")Long boardId,
+    public ResponseEntity<ApiResponse<ArticleDTO>> update(@PathVariable("boardId")Long boardId,
                                              @Valid ArticleDTO request,
-                                             @AuthenticationPrincipal UserSecureDTO userSecureDTO){
-        String userId = userSecureDTO.getUserId();
+                                             @AuthenticationPrincipal String userId){
 
         ArticleDTO updatedArticle = articleService.updateArticle(boardId, request, userId);
-        return ResponseEntity.ok(updatedArticle);
+        return ResponseEntity.ok(ApiResponse.ok(updatedArticle));
     }
 
     @DeleteMapping("/{boardId}")
-    public ResponseEntity<Void> delete(@PathVariable("boardId") Long boardId,
-                                       @AuthenticationPrincipal UserSecureDTO userSecureDTO){
-        String userId = userSecureDTO.getUserId();
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable("boardId") Long boardId,
+                                       @AuthenticationPrincipal String userId){
         articleService.deleteArticle(boardId, userId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(ApiResponse.ok(null));
     }
 
 }

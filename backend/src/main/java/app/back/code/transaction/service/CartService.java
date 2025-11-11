@@ -10,6 +10,7 @@ import app.back.code.user.entity.UserAccountEntity;
 import app.back.code.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -25,13 +27,14 @@ public class CartService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
 
+
     private CartResponseDTO mapEntitiesToResponse(List<CartEntity> cartEntities) {
         List<CartDTO> itemDTOS = cartEntities.stream()
                 .map(CartDTO::fromEntity)
                 .collect(Collectors.toList());
 
-        Long totalPrice = cartEntities.stream()
-                .mapToLong(cart -> cart.getPost().getPrice())
+        Long totalPrice = itemDTOS.stream()
+                .mapToLong(CartDTO::getPrice)
                 .sum();
 
         return CartResponseDTO.builder()
@@ -41,6 +44,7 @@ public class CartService {
                 .build();
     }
 
+    @Transactional
     public CartResponseDTO getCartByUserId(String userId) {
         List<CartEntity> cartItems = cartRepository.findByUser_UserId(userId);
         return mapEntitiesToResponse(cartItems);
@@ -73,13 +77,13 @@ public class CartService {
 
     @Transactional
     public CartResponseDTO removePostFromCart(String userId, Long postId) {
-        List<CartEntity> cartItems = cartRepository.findByUser_UserId(userId);
-
-        Optional<CartEntity> itemToRemove = cartItems.stream()
-                .filter(item -> item.getPost().getPostId().equals(postId))
-                .findFirst();
-
-        itemToRemove.ifPresent(cartRepository::delete);
+        cartRepository.findByUser_UserIdAndPost_PostId(userId, postId)
+                .ifPresentOrElse(
+                        cartRepository::delete,
+                        () -> {
+                            throw new EntityNotFoundException("Post not found");
+                        }
+                );
 
         List<CartEntity> updatedCart = cartRepository.findByUser_UserId(userId);
         return mapEntitiesToResponse(updatedCart);

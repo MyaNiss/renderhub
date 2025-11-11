@@ -25,7 +25,7 @@ export const accountAPI = {
         return res.data;
     },
     register: async (registerData) => {
-        const res = await api.post('/api/v1/user', registerData);
+        const res = await api.post('/api/v1/user/register', registerData);
         return res.data;
     }
 }

@@ -23,25 +23,27 @@ const LoginPage = () => {
     });
 
     const onSubmit = async (data) => {
+        console.log(data);
 
         try {
             const response = await accountAPI.login(data);
 
             const accessToken = response.headers.get('Authorization')?.replace('Bearer ', '');
-            const userData = response.data?.response;
+            const userData = response.data?.content;
 
             if (response.status === 200 && accessToken && userData) {
 
                 useAuthStore.getState().login({
                     token: accessToken,
                     userId: userData.userId,
-                    userName: userData.nickname || userData.name,
-                    userRole: userData.roleName,
+                    userName: userData.userName,
+                    userRole: userData.userRole,
                 });
 
                 alert('로그인 성공!');
-                navigate('/');
+                navigate(-1);
             } else {
+                console.log(response);
                 alert('로그인 실패: 서버 응답 오류 또는 토큰이 누락되었습니다.');
             }
         } catch (error) {

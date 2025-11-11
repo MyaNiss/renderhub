@@ -20,8 +20,6 @@ export const useBoard = () => {
         onSuccess: () => {
             console.log ("Write board");
 
-            alert("게시글이 성공적으로 등록되었습니다");
-
             queryClient.invalidateQueries({queryKey : ['boardList', 0]});
         }
     })
@@ -30,8 +28,8 @@ export const useBoard = () => {
     const updateBoardMutation = useMutation({
         mutationFn: (formData) => boardAPI.update(formData),
         onSuccess: (data, formData) => {
-            const id = formData.get('id');
-            queryClient.invalidateQueries({queryKey : ['board', id]});
+            const id = formData.get('articleId');
+            queryClient.invalidateQueries({queryKey : ['boardDetail', id]});
             queryClient.invalidateQueries({queryKey : ['boardList', 0]});
         }
     });

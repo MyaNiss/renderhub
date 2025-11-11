@@ -70,13 +70,15 @@ public class JWTFilter  extends OncePerRequestFilter{
         String userId = jwtUtils.getUserId(acessToken);
         String userName = jwtUtils.getUserName(acessToken);
         String userRole = jwtUtils.gertUserRole(acessToken);
+
+        boolean isDeleted = false;
        
 
-        UserSecureDTO dto = new UserSecureDTO(userId, userName, userName, userRole);
+        UserSecureDTO dto = new UserSecureDTO(userId, userName, userName, userRole, isDeleted);
 
         //시큐리티 세션에 저장()
         Authentication authentication = 
-                new UsernamePasswordAuthenticationToken(dto, null, dto.getAuthorities());
+                new UsernamePasswordAuthenticationToken(/*dto*/ userId, null, dto.getAuthorities());
         
         SecurityContextHolder.getContext().setAuthentication(authentication);
 

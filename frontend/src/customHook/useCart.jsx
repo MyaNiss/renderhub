@@ -1,5 +1,6 @@
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 import {cartAPI} from "../service/cartService.jsx";
+import {useEffect} from "react";
 
 
 export const useCart = (isCartOpen) => {
@@ -11,8 +12,8 @@ export const useCart = (isCartOpen) => {
         queryKey: cartQueryKey,
         queryFn: () => cartAPI.getCart(),
         enabled: isCartOpen,
-        initialData: null
     });
+
 
     const addCart = useMutation({
         mutationFn: (postId) => cartAPI.addCart(postId),

@@ -12,8 +12,8 @@ const CommentList = ({resourceType, parentId}) => {
 
     const {data: commentData, isLoading} = useGetCommentList(resourceType, parentId, currentPage, COMMENT_PAGE_PER_ROWS);
 
-    const comments = commentData?.comments || [];
-    const totalRows = commentData?.totalRows || 0;
+    const comments = commentData?.content || [];
+    const totalRows = commentData?.totalElements || 0;
 
     const movePage = (page) => {
         if(page >= 0){
@@ -35,10 +35,10 @@ const CommentList = ({resourceType, parentId}) => {
                 <ul className={commentStyle.commentList}>
                     {comments.map((comment) => (
                         <CommentItem
-                            key={comment.id}
+                            key={comment.commentId}
                             comment={comment}
-                            resourceType={resourceType}
-                            parentId={parentId}
+                            resourceType={comment.targetType}
+                            parentId={comment.targetId}
                         />
                     ))}
                 </ul>

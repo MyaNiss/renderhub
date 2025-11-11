@@ -4,7 +4,6 @@ CREATE TABLE user_role (
     name VARCHAR(50) NOT NULL UNIQUE COMMENT '역할 이름 (USER, ADMIN)'
 );
 
-show tables like 'user_role';
 
 -- 2. 사용자 계정 테이블 (user) - Soft Delete 적용
 CREATE TABLE user_account (
@@ -135,10 +134,10 @@ CREATE TABLE cart (
 
 -- 11. 주문 항목 테이블 (order_item)
 CREATE TABLE order_item (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '주문 항목 ID',
+    order_item_id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '주문 항목 ID',
     order_id BIGINT NOT NULL COMMENT '속한 주문 ID',
     post_id BIGINT NOT NULL COMMENT '주문된 상품 ID',
-    order_price BIGINT NOT NULL COMMENT '주문 시점의 단가',
+    price BIGINT NOT NULL COMMENT '주문 시점의 단가',
 
     FOREIGN KEY (order_id) REFERENCES user_order(order_id),
     FOREIGN KEY (post_id) REFERENCES post(post_id)
@@ -156,3 +155,128 @@ CREATE TABLE transaction_history (
     FOREIGN KEY (post_id) REFERENCES post(post_id),
     FOREIGN KEY (order_id) REFERENCES user_order(order_id)
 );
+
+
+
+-- =====================================================================
+-- 1. 사용자 역할 테이블 (user_role)
+-- =====================================================================
+INSERT INTO user_role (role_id, name) VALUES (1, 'ADMIN');
+INSERT INTO user_role (role_id, name) VALUES (2, 'USER');
+
+-- =====================================================================
+-- 2. 사용자 계정 테이블 (user_account)
+-- 비밀번호는 테스트용 해시 값입니다. (예: "1234")
+-- =====================================================================
+INSERT INTO user_account (user_id, role_id, password, name, nickname, phone, email, contents) VALUES
+('admin01', 1, '$2a$10$/iuglmJXTk8Zkuk2RIlLc.jUJMjj5ePeikAA.5oDZA06tMP7On3yy', '시스템관리', '마켓마스터', '010-0000-1111', 'admin@example.com', '사이트 운영 및 관리자 계정'),
+('seller01', 2, '$2a$10$/iuglmJXTk8Zkuk2RIlLc.jUJMjj5ePeikAA.5oDZA06tMP7On3yy', '김모델', 'ModelPro', '010-1234-5678', 'seller01@example.com', '퀄리티 높은 3D 배경 전문 판매자'),
+('seller02', 2, '$2a$10$/iuglmJXTk8Zkuk2RIlLc.jUJMjj5ePeikAA.5oDZA06tMP7On3yy', '박캐릭터', 'CharArt', '010-9876-5432', 'seller02@example.com', '게임용 캐릭터 및 소품 판매자'),
+('buyer01', 2, '$2a$10$/iuglmJXTk8Zkuk2RIlLc.jUJMjj5ePeikAA.5oDZA06tMP7On3yy', '이구매자', 'EasyBuy', '010-1111-2222', 'buyer01@example.com', '최근 가입한 3D 모델 구매자'),
+('buyer02', 2, '$2a$10$/iuglmJXTk8Zkuk2RIlLc.jUJMjj5ePeikAA.5oDZA06tMP7On3yy', '최이용', 'MaxUser', '010-3333-4444', 'buyer02@example.com', '활동적인 우수 이용자');
+
+-- =====================================================================
+-- 3. 사용자 정산 정보 테이블 (user_bank)
+-- =====================================================================
+INSERT INTO user_bank (user_id, bank_name, account_number, account_holder) VALUES
+('seller01', '우리은행', '1002-123-456789', '김모델'),
+('seller02', '신한은행', '110-987-654321', '박캐릭터');
+
+-- =====================================================================
+-- 4. 공통 카테고리 테이블 (category)
+-- POST_CATEGORY (101~), FILE_TYPE (201~), BOARD_CATEGORY (301~), CS_CATEGORY (401~)
+-- =====================================================================
+-- 상품 분류 카테고리
+INSERT INTO category (category_id, category_type, name) VALUES
+(101, 'POST_CATEGORY', 'CHARACTER'),
+(102, 'POST_CATEGORY', 'BACKGROUND'),
+(103, 'POST_CATEGORY', 'PROP_ITEM'),
+(104, 'POST_CATEGORY', 'ARCHITECTURE'),
+(199, 'POST_CATEGORY', 'OTHERS');
+-- 파일 형식 카테고리
+INSERT INTO category (category_id, category_type, name) VALUES
+(201, 'FILE_TYPE', 'FBX'),
+(202, 'FILE_TYPE', 'OBJ'),
+(203, 'FILE_TYPE', 'STL'),
+(204, 'FILE_TYPE', 'BLEND'),
+(299, 'FILE_TYPE', 'OTHERS');
+-- 게시판 분류 카테고리
+INSERT INTO category (category_id, category_type, name) VALUES
+(301, 'BOARD_CATEGORY', '공지'),
+(302, 'BOARD_CATEGORY', '자유'),
+(303, 'BOARD_CATEGORY', '질문');
+-- CS 분류 카테고리
+INSERT INTO category (category_id, category_type, name) VALUES
+(401, 'CS_CATEGORY', '결제'),
+(402, 'CS_CATEGORY', '환불'),
+(403, 'CS_CATEGORY', '계정');
+
+-- =====================================================================
+-- 5. 3D 파일 상품 테이블 (post)
+-- =====================================================================
+INSERT INTO post (post_id, writer_id, category_id, file_type_id, title, content, price, view_count, purchase_count, created_at, updated_at) VALUES
+(1, 'seller01', 102, 201, '중세 마을 배경 팩 (FBX)', '마을 전체를 구성할 수 있는 고해상도 중세 배경 모델입니다.', 150000, 500, 20, NOW(), NOW()),
+(2, 'seller02', 101, 202, '게임 주인공 캐릭터 (OBJ)', '로우폴리 스타일의 남성 주인공 캐릭터 모델입니다. 애니메이션 리깅 포함.', 80000, 300, 15, NOW(), NOW()),
+(3, 'seller02', 103, 204, '판타지 검 & 방패 세트 (BLEND)', '무료 샘플로 제공하는 무기 모델링입니다.', 0, 1500, 50, NOW() - INTERVAL 1 DAY, NOW()),
+(4, 'seller01', 104, 203, '모던 아파트 인테리어 (STL)', '3D 프린팅을 위한 모던 아파트 인테리어 구조 모델.', 250000, 100, 5, NOW(), NOW()),
+(5, 'seller01', 102, 201, 'SF 우주선 모델 1종 (FBX)', '영화 및 게임용으로 제작된 고퀄리티 SF 우주선 모델입니다.', 95000, 700, 30, NOW(), NOW());
+
+-- =====================================================================
+-- 6. 게시판 및 CS 테이블 (article)
+-- article_type: BOARD 또는 CS
+-- =====================================================================
+INSERT INTO article (article_id, writer_id, article_type, category_id, title, content, is_secret, view_count, created_at, updated_at) VALUES
+(10, 'admin01', 'BOARD', 301, '새로운 결제 수단 추가 공지', '토스 페이먼츠 결제 시스템이 추가되었습니다. 많은 이용 바랍니다.', FALSE, 80, NOW(), NOW()),
+(11, 'buyer01', 'BOARD', 303, 'Post 1 모델링 리깅 문의드립니다.', '중세 마을 배경 팩의 나무 모델 일부가 리깅이 안 되는 것 같습니다.', FALSE, 15, NOW(), NOW()),
+(12, 'buyer02', 'CS', 401, '결제 오류 문의 (카드사 오류)', '어제 5번 상품 결제 시 카드사 오류가 발생했습니다. 확인 부탁드립니다.', TRUE, 5, NOW(), NOW()),
+(13, 'seller02', 'BOARD', 302, '다음 캐릭터 모델링 투표 부탁드립니다!', '다음 모델링으로 마법사 캐릭터와 전사 캐릭터 중 투표해주세요!', FALSE, 40, NOW(), NOW());
+
+-- =====================================================================
+-- 7. 파일 및 이미지 테이블 (file)
+-- =====================================================================
+INSERT INTO file (file_id, file_use_type, original_name, stored_path, post_id, article_id, display_order) VALUES
+(101, 'POST_IMG', 'post1_main.jpg', '/files/post/1/img_01.jpg', 1, NULL, 1),
+(102, 'POST_IMG', 'post2_main.jpg', '/files/post/2/img_01.jpg', 2, NULL, 1),
+(103, 'POST_FILE', 'town_model.fbx', '/files/post/1/data.fbx', 1, NULL, NULL), -- Post 1 실제 파일
+(104, 'POST_FILE', 'char_model.obj', '/files/post/2/data.obj', 2, NULL, NULL), -- Post 2 실제 파일
+(105, 'CS_IMG', 'error_screen.png', '/files/cs/12/error.png', NULL, 12, 1); -- Article 12 문의 첨부 파일
+
+-- =====================================================================
+-- 8. 댓글 테이블 (comment)
+-- =====================================================================
+INSERT INTO comment (comment_id, writer_id, target_type, target_id, content, created_at, updated_at) VALUES
+(1, 'buyer02', 'POST', 1, '배경 퀄리티가 환상적이네요. 바로 구매합니다!', NOW() - INTERVAL 10 MINUTE, NOW() - INTERVAL 10 MINUTE),
+(2, 'seller01', 'POST', 1, '감사합니다! 좋은 작업에 사용되길 바랍니다.', NOW() - INTERVAL 5 MINUTE, NOW() - INTERVAL 5 MINUTE),
+(3, 'admin01', 'ARTICLE', 12, '결제 오류 건 확인했습니다. 담당자가 연락드리겠습니다.', NOW() - INTERVAL 2 HOUR, NOW() - INTERVAL 2 HOUR),
+(4, 'buyer01', 'POST', 3, '무료 모델인데도 퀄리티가 좋네요. 감사합니다.', NOW(), NOW());
+
+-- =====================================================================
+-- 9. 주문 테이블 (user_order)
+-- =====================================================================
+INSERT INTO user_order (order_id, user_id, total_price, status, toss_order_code, pg_tid, created_at) VALUES
+(10001, 'buyer01', 230000, 'COMPLETED', 'TOS_ORDER_20251110_0001', 'PG_TID_ABC123', NOW() - INTERVAL 3 DAY),
+(10002, 'buyer02', 95000, 'COMPLETED', 'TOS_ORDER_20251110_0002', 'PG_TID_DEF456', NOW() - INTERVAL 1 DAY);
+
+-- =====================================================================
+-- 10. 장바구니 항목 테이블 (cart)
+-- buyer01: Post 4, seller02: Post 1
+-- =====================================================================
+INSERT INTO cart (user_id, post_id) VALUES
+('buyer01', 4),
+('seller02', 1);
+
+-- =====================================================================
+-- 11. 주문 항목 테이블 (order_item)
+-- =====================================================================
+INSERT INTO order_item (order_item_id, order_id, post_id, price) VALUES
+(1, 10001, 1, 150000), -- Buyer01: 중세 마을
+(2, 10001, 2, 80000),  -- Buyer01: 게임 주인공 캐릭터
+(3, 10002, 5, 95000);  -- Buyer02: SF 우주선
+
+-- =====================================================================
+-- 12. 사용자 구매 이력 및 다운로드 권한 테이블 (transaction_history)
+-- =====================================================================
+INSERT INTO transaction_history (user_id, post_id, order_id, created_at) VALUES
+('buyer01', 1, 10001, NOW() - INTERVAL 3 DAY),
+('buyer01', 2, 10001, NOW() - INTERVAL 3 DAY),
+('buyer02', 5, 10002, NOW() - INTERVAL 1 DAY);

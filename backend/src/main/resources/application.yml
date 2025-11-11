@@ -8,9 +8,10 @@ server:
       force-request: true
       force-response: true
   port: 9090
-  file:
-    base:
-      path: C:/files/upload
+
+file:
+  base:
+    path: C:/files/upload/
 
 
 spring:

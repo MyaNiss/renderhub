@@ -1,6 +1,7 @@
 package app.back.code.transaction.controller;
 
 import app.back.code.security.dto.UserSecureDTO;
+import app.back.code.transaction.dto.CartRequestDTO;
 import app.back.code.transaction.dto.CartResponseDTO;
 import app.back.code.transaction.service.CartService;
 import lombok.RequiredArgsConstructor;
@@ -17,38 +18,31 @@ public class CartRestController {
 
     @GetMapping
     public ResponseEntity<CartResponseDTO> getCart(
-            @AuthenticationPrincipal UserSecureDTO userSecureDTO) {
-        String userId = userSecureDTO.getUserId();
+            @AuthenticationPrincipal String userId) {
         CartResponseDTO cart = cartService.getCartByUserId(userId);
         return ResponseEntity.ok(cart);
     }
 
     @PostMapping
     public ResponseEntity<CartResponseDTO> addCartItem(
-            @AuthenticationPrincipal UserSecureDTO userSecureDTO,
-            @RequestBody Long postId) {
-        if(postId == null) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+            @AuthenticationPrincipal String userId,
+            @RequestBody CartRequestDTO cartRequestDTO) {
 
-        String userId = userSecureDTO.getUserId();
-        CartResponseDTO updatedCart = cartService.addPostToCart(userId, postId);
+        CartResponseDTO updatedCart = cartService.addPostToCart(userId, cartRequestDTO.getPostId());
         return new ResponseEntity<>(updatedCart, HttpStatus.CREATED);
     }
 
-    @DeleteMapping
+    @DeleteMapping("/{postId}")
     public ResponseEntity<CartResponseDTO> removeCartItem(
-            @AuthenticationPrincipal UserSecureDTO userSecureDTO,
-            @RequestBody Long postId) {
-        String userId = userSecureDTO.getUserId();
+            @AuthenticationPrincipal String userId,
+            @PathVariable Long postId) {
         CartResponseDTO updatedCart = cartService.removePostFromCart(userId, postId);
         return ResponseEntity.ok(updatedCart);
     }
 
     @DeleteMapping("/all")
     public ResponseEntity<Void> clearCart(
-            @AuthenticationPrincipal UserSecureDTO userSecureDTO) {
-        String userId = userSecureDTO.getUserId();
+            @AuthenticationPrincipal String userId) {
         cartService.clearAllCart(userId);
         return ResponseEntity.noContent().build();
     }

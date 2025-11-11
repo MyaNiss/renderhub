@@ -1,11 +1,15 @@
 package app.back.code.user.controller;
 
 import app.back.code.common.dto.ApiResponse;
+import app.back.code.user.dto.PasswordUpdateDTO;
+import app.back.code.user.dto.ReAuthRequestDTO;
 import app.back.code.user.dto.UserDTO;
 import app.back.code.user.service.UserBankService;
 import app.back.code.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -31,7 +35,7 @@ public class UserRestController {
         return ResponseEntity.ok(ApiResponse.ok(response));
     }
 
-    @PostMapping
+    @PostMapping("/register")
     public ResponseEntity<ApiResponse<UserDTO>> registerUser(@RequestBody @Valid UserDTO requestDTO) {
         UserDTO response = userService.saveUser(requestDTO);
 
@@ -39,11 +43,40 @@ public class UserRestController {
                 .body(ApiResponse.ok(response));
     }
 
+    @PostMapping("/reAuth")
+    public ResponseEntity<ApiResponse<Void>> reAuthenticate(@Valid @RequestBody ReAuthRequestDTO requestDTO) {
+        boolean isAuthenticated = userService.reAuthenticate(
+                requestDTO.getUserId(),
+                requestDTO.getPassword()
+        );
+
+        if(isAuthenticated) {
+            return ResponseEntity.ok(ApiResponse.ok(null));
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PostMapping("/password")
+    public ResponseEntity<ApiResponse<Void>> updatePassword(@AuthenticationPrincipal String currentUserId,
+                                                            @RequestBody @Valid PasswordUpdateDTO passwordUpdateDTO) {
+
+        userService.updatePassword(
+                currentUserId,
+                passwordUpdateDTO.getCurrentPassword(),
+                passwordUpdateDTO.getNewPassword()
+        );
+
+        return ResponseEntity.ok(ApiResponse.ok(null));
+    }
+
     @PutMapping
     public ResponseEntity<ApiResponse<UserDTO>> updateUser(@AuthenticationPrincipal String currentUserId, @RequestBody @Valid UserDTO requestDTO) {
         UserDTO updatedUser = userService.updateUser(currentUserId, requestDTO);
 
-        userBankService.saveOrUpdateBankInfo(currentUserId, requestDTO);
+        if(requestDTO.getBankName() != null || requestDTO.getAccountNumber() != null) {
+            userBankService.saveOrUpdateBankInfo(currentUserId, requestDTO);
+        }
 
         return ResponseEntity.ok(ApiResponse.ok(updatedUser));
     }

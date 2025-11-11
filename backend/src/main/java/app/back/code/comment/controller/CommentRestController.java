@@ -40,16 +40,13 @@ public class CommentRestController {
     public ResponseEntity<CommentDTO> writeComment(
             @PathVariable("resourceType")String targetType,
             @PathVariable("parentId")Long targetId,
-            @RequestBody @Valid CommentDTO request,
+            @ModelAttribute CommentDTO request,
             @AuthenticationPrincipal String currentUserId
     ){
-        CommentDTO newRequest = CommentDTO.builder()
-                .content(request.getContent())
-                .targetType(targetType.toUpperCase())
-                .targetId(targetId)
-                .build();
+        request.setTargetType(targetType.toUpperCase());
+        request.setTargetId(targetId);
 
-        CommentDTO createdComment = commentService.createComment(newRequest, currentUserId);
+        CommentDTO createdComment = commentService.createComment(request, currentUserId);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(createdComment);
     }
@@ -57,7 +54,7 @@ public class CommentRestController {
     @PutMapping("/{commentId}")
     public ResponseEntity<CommentDTO> updateComment(
             @PathVariable Long commentId,
-            @RequestBody CommentDTO request,
+            @ModelAttribute CommentDTO request,
             @AuthenticationPrincipal String currentUserId
     ) {
 

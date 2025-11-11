@@ -13,7 +13,7 @@ public class UserRoleService {
 
     private final UserRoleRepository userRoleRepository;
 
-    private static final String DEFAULT_ROLE_NAME = "ROLE_USER";
+    private static final String DEFAULT_ROLE_NAME = "USER";
 
     public UserRoleEntity findDefaultRole() {
         return userRoleRepository.findByName(DEFAULT_ROLE_NAME).orElseThrow(() -> new IllegalStateException("권한 (" + DEFAULT_ROLE_NAME + ")이 DB에 없습니다"));

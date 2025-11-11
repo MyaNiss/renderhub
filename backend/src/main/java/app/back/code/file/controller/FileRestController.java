@@ -19,10 +19,9 @@ public class FileRestController {
 
     @PostMapping("/upload/quill")
     public ResponseEntity<String> uploadQuillImage(
-            @AuthenticationPrincipal UserSecureDTO userSecureDTO,
+            @AuthenticationPrincipal String userId,
             @RequestPart("file") MultipartFile file) {
         String fileUseType = "ARTICLE_IMG";
-        String userId = userSecureDTO.getUserId();
 
         String imageUrl = fileService.uploadQuillImage(userId, file, fileUseType);
 

@@ -12,10 +12,13 @@ const UserProfile = () => {
 
     const userId = useAuthStore((state) => state.userId);
     const clearAuth = useAuthStore((state) => state.clearAuth);
+    const {logout} = useAuthStore();
 
     const {getUserProfile, deleteUserMutation} = useUser(userId, false);
 
-    const {data: userData} = getUserProfile;
+    const {data: responseData, isLoading} = getUserProfile;
+
+    const userData = responseData?.content;
 
     const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
 
@@ -54,7 +57,8 @@ const UserProfile = () => {
         }
 
         try {
-            await deleteUserMutation.mutateAsync();
+            await deleteUserMutation.mutateAsync(userId);
+            logout();
             clearAuth();
             navigate('/');
 
@@ -68,9 +72,18 @@ const UserProfile = () => {
         name,
         email,
         phone,
-        bank,
-        accountNumber
+        bankName,
+        accountNumber,
+        accountHolder
     } = userData || {};
+
+    if (isLoading) {
+        return (
+            <div className="site-wrap content-wrap" style={{textAlign: 'center', marginTop: '50px'}}>
+                <p>프로필 정보를 불러오는 중입니다...</p>
+            </div>
+        );
+    }
 
     return (
         <div className="site-wrap content-wrap" style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }}>
@@ -133,9 +146,15 @@ const UserProfile = () => {
 
                 {/* 7. 은행 및 계좌번호 (Bank & Account) */}
                 <div className={style.formGroup}>
-                    <div className={style.label}>은행 / 계좌번호</div>
+                    <div className={style.label}>은행 / 계좌번호 / 예금주</div>
                     <div className={style.readOnlyField}>
-                        {`${bank || ''} ${accountNumber ? ' / ' + accountNumber : ''}`.trim() || '-'}
+                        {
+                            (
+                                `${bankName || ''}` +
+                                `${accountNumber ? ' / ' + accountNumber : ''}` +
+                                `${accountHolder ? ' / ' + accountHolder : ''}`
+                            ).trim() || '-'
+                        }
                     </div>
                 </div>
 

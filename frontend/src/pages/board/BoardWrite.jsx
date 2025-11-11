@@ -6,75 +6,65 @@ import style from "../../assets/css/board.common.module.css";
 import useQuillEditor from "../../customHook/useQuillEditor.jsx";
 import {useNavigate} from "react-router";
 import {useBoard} from "../../customHook/useBoard.jsx";
-import {BOARD_CATEGORIES} from "../../utils/constants/boardCategories.jsx";
 import {useAuthStore} from "../../store/authStore.jsx";
+import {useCategories} from "../../customHook/useCategories.jsx";
+import {CATEGORY_TYPES} from "../../utils/constants/categoryTypes.js";
 
 // 유효성 처리
 const schema = yup.object().shape({
-    category: yup.string().required("카테고리를 선택하십시오"),
+    categoryId: yup.number().typeError("카테고리를 선택하십시오").required("카테고리를 선택하십시오"),
     title : yup.string().required("제목을 입력하십시오").max(100, "제목은 최대 100자 입니다"),
-    contents : yup.string().required('내용을 입력하십시오'),
+    content : yup.string().required('내용을 입력하십시오'),
 });
 
 const BoardWrite = () => {
     const navigate = useNavigate();
 
     const currentUserRole = useAuthStore(state => state.userRole);
-    const currentUserId = useAuthStore(state => state.userId);
     const isAdmin = currentUserRole === 'ROLE_ADMIN';
 
-    const availableCategories = isAdmin ? BOARD_CATEGORIES : BOARD_CATEGORIES.filter(category => category.value !== 'notice');
+    const { categories: boardCategories } = useCategories(CATEGORY_TYPES.BOARD);
+    const availableCategories = isAdmin ? boardCategories : boardCategories.filter(category => category.name !== '공지');
 
     const {register, handleSubmit, formState: {errors}, setValue, watch} = useForm({
         resolver: yupResolver(schema),
         defaultValues: {
-            category: "",
+            categoryId: null,
             title: "",
-            contents: ""
+            content: ""
         }
     });
 
-    const quillValue = watch('contents');
+    const quillValue = watch('content');
 
     const handleQuillChange = useCallback((value) => {
-        setValue("contents", value, {shouldValidate: true});
+        setValue("content", value, {shouldValidate: true});
     }, [setValue]);
-
-    useEffect(() => {
-        register('contents', {required: true});
-    }, [register]);
 
     const QuillEditorComponent = useQuillEditor(quillValue, handleQuillChange);
 
     const {createBoardMutation} = useBoard();
 
     const onSubmit = async (data) => {
-        console.log("폼 데이터", data);
 
         const formData = new FormData();
-        formData.append("category", data.category);
+        formData.append("categoryId", data.categoryId);
         formData.append("title", data.title);
-        formData.append("contents", data.contents);
+        formData.append("content", data.content);
 
         try {
             const result = await createBoardMutation.mutateAsync(formData);
             console.log(result);
 
-            if(result.resultCode === 200){
-                alert('게시글이 등록되었습니다');
-                navigate('/board');
-            }else{
-                alert('게시글 등록에 실패하였습니다');
-                return false;
-            }
-
+            alert('게시글이 등록되었습니다');
+            navigate('/board');
         } catch (error) {
             console.log(error);
         }
     }
 
     const  { ref : titleRef, ...restTitleProps} = register('title');
-    const  { ref : categoryRef, ...restCategoryProps} = register('category');
+    const  { ref : categoryRef, ...restCategoryProps} = register('categoryId');
 
     const writeCancel = () => {
         if(window.confirm("작성을 취소하고 목록으로 돌아가시겠습니까?")){
@@ -90,19 +80,19 @@ const BoardWrite = () => {
             <section className={style.section}>
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <div className={style.formGroup}>
-                        <label htmlFor="category">카테고리</label>
+                        <label htmlFor="categoryId">카테고리</label>
                         <select
-                            id="category"
+                            id="categoryId"
                             className={style.formInput}
                             ref={categoryRef}
                             {...restCategoryProps}
                         >
                             <option value="">-- 카테고리를 선택하세요 --</option>
                             {availableCategories.map(cat => (
-                                <option key={cat.value} value={cat.value}>{cat.label}</option>
+                                <option key={cat.id} value={cat.id}>{cat.name}</option>
                             ))}
                         </select>
-                        {errors.category && <p className={style.errorMessage}>{errors.category.message}</p>}
+                        {errors.categoryId && <p className={style.errorMessage}>{errors.categoryId.message}</p>}
                     </div>
                     <div className={style.formGroup}>
                         <label htmlFor="title">제목</label>
@@ -118,12 +108,12 @@ const BoardWrite = () => {
                     </div>
 
                     <div className={style.formGroup}>
-                        <label htmlFor="contents">내용</label>
+                        <label htmlFor="content">내용</label>
                         <div className={"quill-wrapper"}>
                             {QuillEditorComponent}
                         </div>
                         <div>
-                            {errors.contents && <p className={style.errorMessage}>{errors.contents.message}</p>}
+                            {errors.content && <p className={style.errorMessage}>{errors.content.message}</p>}
                         </div>
                     </div>
 

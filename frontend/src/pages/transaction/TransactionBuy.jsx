@@ -3,6 +3,8 @@ import {useLocation, useNavigate} from "react-router";
 import {useOrder} from "../../customHook/useOrder.jsx";
 import style from "../../assets/css/transaction.common.module.css";
 import {loadTossPayments} from "@tosspayments/payment-sdk";
+import {usePost, usePostDetail} from "../../customHook/usePost.jsx";
+import {useProductQueries} from "../../customHook/useProductQueries.jsx";
 
 const TOSS_CLIENT_KEY = import.meta.env.VITE_TOSS_CLIENT_KEY;
 
@@ -17,7 +19,7 @@ const TransactionBuy = () => {
     const [paymentWidget, setPaymentWidget] = useState(null);
     const [isWidgetLoading, setIsWidgetLoading] = useState(true);
 
-    const {getPostDetail} = (postIds);
+    const postDetailQueries = useProductQueries(postIds);
     const {createOrderMutation} = useOrder();
 
     const handleGoBack = () => {
@@ -26,7 +28,7 @@ const TransactionBuy = () => {
 
     const finalItems = useMemo(() => {
         return purchaseItems.map(item => {
-            const query = getPostDetail.find(query => query.data?.postId === item.postId);
+            const query = postDetailQueries.find(query => query.data?.postId === item.postId);
             const postDetail = query?.data;
 
             return {
@@ -35,7 +37,7 @@ const TransactionBuy = () => {
                 price: postDetail?.price
             };
         });
-    }, [purchaseItems, getPostDetail]);
+    }, [purchaseItems, postDetailQueries]);
 
     const totalPrice = useMemo(() => {
         return finalItems.reduce((total, item) => {
@@ -62,7 +64,7 @@ const TransactionBuy = () => {
 
                 const tossPayments = await loadTossPayments(TOSS_CLIENT_KEY);
 
-                const widget = tossPayments.widgets.set(
+                const widget = tossPayments.widgets.create(
                     TOSS_CLIENT_KEY,
                     tossPreparationData.tossOrderCode
                 );
@@ -86,7 +88,7 @@ const TransactionBuy = () => {
 
         setupPaymentWidget();
 
-    }, [purchaseItems, createOrderMutation, navigate, getPostDetail]);
+    }, [purchaseItems, createOrderMutation, navigate, postDetailQueries]);
 
 
     const purchase = async () => {

@@ -74,7 +74,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/login/**").permitAll()
                         .requestMatchers("/api/v1/logout/**").permitAll()
                           .requestMatchers("/api/v1/refresh").permitAll()
-                          .anyRequest().authenticated()
+                            .requestMatchers(HttpMethod.POST, "/api/v1/user/register").permitAll()
+                            .requestMatchers("/api/v1/post").permitAll()
+                          .anyRequest().permitAll()
 
             //LoginFilter  전에 JWTFilter 를 실행 
             ).addFilterBefore(new JWTFilter(jwtUtils), LoginFilter.class)
@@ -129,7 +131,7 @@ public class SecurityConfig {
     ));
        //메서드 설정
        config.setAllowedMethods(List.of("GET",  "POST", "DELETE", "PUT", "PATCH",  "OPTIONS"));
-       config.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:4000"));
+       config.setAllowedOrigins(List.of("http://localhost:3001", "http://localhost:4000"));
        config.setAllowCredentials(true);
        config.setMaxAge(3600L);
 

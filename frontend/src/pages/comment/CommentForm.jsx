@@ -21,11 +21,16 @@ const CommentForm = ({resourceType, parentId}) => {
     const { writeCommentMutation } = useComment();
 
     const onSubmit = async (data) => {
-        const formData = new FormData();
-        formData.append("content", data.content);
+        const requestBody = {
+            content: data.content
+        };
 
         try{
-            const result = await writeCommentMutation.mutateAsync({ resourceType, parentId, formData});
+            const result = await writeCommentMutation.mutateAsync({
+                resourceType,
+                parentId,
+                requestBody
+            });
 
             if(result.resultCode === 200){
                 alert('댓글이 성공적으로 작성되었습니다');

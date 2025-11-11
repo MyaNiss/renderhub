@@ -7,12 +7,13 @@ import useQuillEditor from "../../customHook/useQuillEditor.jsx";
 import style from "../../assets/css/board.common.module.css";
 import {useForm} from "react-hook-form";
 import {useAuthStore} from "../../store/authStore.jsx";
-import {BOARD_CATEGORIES} from "../../utils/constants/boardCategories.jsx";
+import {useCategories} from "../../customHook/useCategories.jsx";
+import {CATEGORY_TYPES} from "../../utils/constants/categoryTypes.js";
 
 const schema = yup.object().shape({
-    category: yup.string().required("카테고리를 선택하십시오"),
+    categoryId: yup.number().typeError("카테고리를 선택하십시오").required("카테고리를 선택하십시오"),
     title : yup.string().required('제목을 입력하십시오'),
-    contents : yup.string().required('내용을 입력하십시오')
+    content : yup.string().required('내용을 입력하십시오')
 })
 const BoardUpdate = () => {
     const navigate = useNavigate();
@@ -21,43 +22,44 @@ const BoardUpdate = () => {
     const { updateBoardMutation } = useBoard();
 
     const currentUserRole = useAuthStore(state => state.userRole);
-    const isAdmin = currentUserRole === 'ADMIN';
+    const isAdmin = currentUserRole === 'ROLE_ADMIN';
+
+    const { categories: boardCategories } = useCategories(CATEGORY_TYPES.BOARD);
 
     const {
-        data : initialData
+        data : initialData,
+        isLoading,
+        isError,
+        error
     } = useGetBoardDetail(id);
 
     const availableCategories = isAdmin
-        ? BOARD_CATEGORIES
-        : BOARD_CATEGORIES.filter(cat => cat.value !== 'notice');
+        ? boardCategories
+        : boardCategories.filter(cat => cat.name !== '공지');
 
     const {register, handleSubmit, formState: {errors}, setValue, watch, reset} = useForm({
         resolver: yupResolver(schema),
         defaultValues: {
-            category: "",
+            categoryId: null,
             title: "",
-            contents: ""
+            content: ""
         }
     });
 
     useEffect(() => {
-        if (initialData) {
+        if (initialData && boardCategories.length > 0) {
             reset({
-                category: initialData.category,
+                categoryId: Number(initialData.categoryId),
                 title: initialData.title,
-                contents: initialData.contents
+                content: initialData.content
             });
         }
-    }, [initialData, reset]);
+    }, [initialData, reset, boardCategories.length]);
 
-    const quillValue = watch('contents');
-
-    useEffect(() => {
-        register('contents', {required: true});
-    }, [register]);
+    const quillValue = watch('content');
 
     const handleQuillChange = useCallback((value) => {
-        setValue("contents", value, {shouldValidate: true});
+        setValue("content", value, {shouldValidate: true});
     }, [setValue]);
 
     const QuillEditorComponent = useQuillEditor(quillValue, handleQuillChange);
@@ -66,20 +68,18 @@ const BoardUpdate = () => {
         console.log("게시글 수정 데이터", data);
 
         const formData = new FormData();
-        formData.append("id", id);
-        formData.append("category", data.category);
+        formData.append("boardId", id);
+        formData.append("categoryId", data.categoryId);
         formData.append("title", data.title);
-        formData.append("contents", data.contents);
+        formData.append("content", data.content);
 
         try{
             const result = await updateBoardMutation.mutateAsync(formData);
-
-            if(result.resultCode === 200){
+            if(result.resultCode === "200") {
                 alert("게시글이 수정되었습니다");
                 navigate(`/board/${id}`);
             } else {
-                alert("게시글 수정에 실패했습니다");
-                return false;
+                console.error('게시글 수정에 실패했습니다');
             }
         } catch (error) {
             console.error(error);
@@ -88,12 +88,30 @@ const BoardUpdate = () => {
     }
 
     const { ref : titleRef, ...restTitleProps} = register('title');
-    const { ref : categoryRef, ...restCategoryProps} = register('category');
+    const { ref : categoryRef, ...restCategoryProps} = register('categoryId');
 
     const moveToList = () => {
         if(window.confirm("수정을 취소하고 상세 페이지로 돌아가시겠습니까?")){
             navigate(`/board/${id}`);
         }
+    }
+
+    if(isLoading){
+        return (
+            <div className={style.container}>
+                <div className={`${style.section} ${style.textCenter}`}>
+                    <h2 className={style.header}>게시글 정보를 불러오는 중입니다</h2>
+                </div>
+            </div>
+        )
+    }
+
+    if (!initialData) {
+        return <div className={style.container}>
+            <div className={`${style.section} ${style.textCenter}`}>
+                <h2 className={style.header}>게시글 정보를 찾을 수 없습니다</h2>
+            </div>
+        </div>
     }
 
     return (
@@ -110,10 +128,11 @@ const BoardUpdate = () => {
                             className={style.formInput}
                             ref={categoryRef}
                             {...restCategoryProps}
+                            defaultValue={initialData?.categoryId || ""}
                         >
                             <option value="">-- 카테고리를 선택하세요 --</option>
                             {availableCategories.map(category => (
-                                <option key={category.value} value={category.value}>{category.label}</option>
+                                <option key={category.id} value={category.id}>{category.name}</option>
                             ))}
                         </select>
                         {errors.category && <p className={style.errorMessage}>{errors.category.message}</p>}
@@ -132,12 +151,12 @@ const BoardUpdate = () => {
                     </div>
 
                     <div className={style.formGroup}>
-                        <label htmlFor="contents">내용</label>
+                        <label htmlFor="content">내용</label>
                         <div className={"quill-wrapper"}>
                             {QuillEditorComponent}
                         </div>
                         <div>
-                            {errors.contents && <p className={style.errorMessage}>{errors.contents.message}</p>}
+                            {errors.content && <p className={style.errorMessage}>{errors.content.message}</p>}
                         </div>
                     </div>
 

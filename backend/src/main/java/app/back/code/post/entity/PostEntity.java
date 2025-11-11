@@ -1,12 +1,12 @@
 package app.back.code.post.entity;
 
-import app.back.code.article.entity.ArticleType;
 import app.back.code.common.entity.BaseEntity;
 import app.back.code.common.entity.CategoryEntity;
 import app.back.code.user.entity.UserAccountEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.SQLRestriction;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 @DynamicUpdate
 @ToString(callSuper = true)
 @EntityListeners(AuditingEntityListener.class)
+@SQLRestriction("is_deleted = false")
 public class PostEntity extends BaseEntity {
 
     @Id
@@ -42,7 +43,7 @@ public class PostEntity extends BaseEntity {
     private String title;
 
     @Lob
-    @Column(name = "content", nullable = false)
+    @Column(name = "content", columnDefinition = "TEXT", nullable = false)
     private String content;
 
     @Column(name = "price", nullable = false)

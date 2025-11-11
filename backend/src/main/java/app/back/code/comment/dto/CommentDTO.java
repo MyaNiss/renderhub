@@ -5,13 +5,15 @@ import app.back.code.common.entity.BaseEntity;
 import app.back.code.user.dto.UserDTO;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Getter
+@Setter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class CommentDTO extends BaseEntity {
 
     private Long commentId;

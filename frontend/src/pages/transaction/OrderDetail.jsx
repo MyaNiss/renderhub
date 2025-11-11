@@ -10,16 +10,37 @@ const OrderDetail = () => {
     const {getOrder} = useOrder(orderId);
 
     const {
-        data: orderDetail
+        data, isLoading, isError, error
     } = getOrder;
+
+    const orderDetail = data && Array.isArray(data) ? data[0] : data;
 
     const handleGoBack = () => {
         navigate(-1);
     };
 
+    if (isLoading) {
+        return <div className={style.pageContainer}>주문 정보를 불러오는 중입니다...</div>;
+    }
+
+    if (isError) {
+        return <div className={style.pageContainer}>에러 발생: {error.message}</div>;
+    }
+
     if(!orderDetail) {
         return <div className={style.pageContainer}>해당 주문 정보(ID: {orderId})를 찾을 수 없습니다.</div>;
     }
+
+
+    const {
+        createdAt,
+        totalPrice,
+        status,
+        orderItems,
+        tossOrderCode,
+    } = orderDetail;
+
+    console.log(data);
 
     return (
         <div className={style.pageContainer}>
@@ -34,22 +55,22 @@ const OrderDetail = () => {
 
                 <h3 className={style.sectionHeader}>기본 정보</h3>
                 <p><strong>주문 번호:</strong> {orderDetail.orderId}</p>
-                <p><strong>주문일:</strong> {new Date(orderDetail.orderDate).toLocaleString()}</p>
-                <p><strong>주문 상태:</strong> <span className={style.statusText}>{orderDetail.status}</span></p>
+                <p><strong>주문일:</strong> {new Date(createdAt).toLocaleString()}</p>
+                <p><strong>주문 상태:</strong> <span className={style.statusText}>{status}</span></p>
 
                 <hr className={style.divider}/>
 
                 <h3 className={style.sectionHeader}>결제 정보</h3>
-                <p><strong>최종 결제 금액:</strong> <span className={style.totalPriceText} style={{fontSize: '1em'}}>{orderDetail.totalPrice.toLocaleString()} 원</span></p>
-                <p><strong>결제 수단:</strong> {orderDetail.paymentMethod}</p>
+                <p><strong>최종 결제 금액:</strong> <span className={style.totalPriceText} style={{fontSize: '1em'}}>{totalPrice.toLocaleString()} 원</span></p>
+                <p><strong>결제 수단:</strong> {tossOrderCode}</p>
 
                 <hr className={style.divider}/>
 
-                <h3 className={style.sectionHeader}>📦 주문 상품 ({orderDetail.items.length}종)</h3>
+                <h3 className={style.sectionHeader}>📦 주문 상품 ({orderItems ? orderItems.length : 0}종)</h3>
                 <ul style={{ listStyle: 'disc', paddingLeft: '20px' }}>
-                    {orderDetail.items.map((item, index) => (
+                    {orderItems.map((item, index) => (
                         <li key={index} style={{ marginBottom: '5px' }}>
-                            {item.title} ({item.postId}) / 가격: {item.price.toLocaleString()}원
+                            {item.post.title} ({item.postId}) / 가격: {item.price.toLocaleString()}원
                         </li>
                     ))}
                 </ul>

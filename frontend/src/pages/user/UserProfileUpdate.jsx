@@ -5,6 +5,7 @@ import {useUser} from "../../customHook/useUser.jsx";
 import {useForm} from "react-hook-form";
 import {yupResolver} from "@hookform/resolvers/yup";
 import {useEffect} from "react";
+import {useAuthStore} from "../../store/authStore.jsx";
 
 const userUpdateSchema = yup.object().shape({
     nickname: yup.string()
@@ -14,8 +15,8 @@ const userUpdateSchema = yup.object().shape({
     name: yup.string()
         .required('이름은 필수 입력 항목입니다.'),
 
-    gender: yup.string()
-        .required('성별을 선택해 주세요.'),
+    // gender: yup.string()
+    //     .required('성별을 선택해 주세요.'),
 
     email: yup.string()
         .email('유효한 이메일 형식이 아닙니다.')
@@ -25,17 +26,21 @@ const userUpdateSchema = yup.object().shape({
         .matches(/^01([0|1|6|7|8|9])-([0-9]{3,4})-([0-9]{4})$/, '유효한 휴대폰 번호 형식이 아닙니다. (하이픈 포함 필수: 01X-XXXX-XXXX)')
         .nullable(true),
 
-    bank: yup.string()
+    bankName: yup.string()
         .nullable(true),
 
     accountNumber: yup.string()
         .nullable(true),
+
+    accountHolder: yup.string()
+        .nullable(true)
 });
 
 const UserProfileUpdate = () => {
     const navigate = useNavigate();
+    const userId = useAuthStore(state => state.userId);
 
-    const { getUserProfile, updateUserMutation } = useUser();
+    const { getUserProfile, updateUserMutation } = useUser(userId, false);
     const { data: userData } = getUserProfile;
 
     const {
@@ -49,7 +54,7 @@ const UserProfileUpdate = () => {
 
     useEffect(() => {
         if (userData) {
-            reset(userData);
+            reset(userData.content);
         }
     }, [userData, reset]);
 
@@ -58,12 +63,15 @@ const UserProfileUpdate = () => {
             alert('수정된 내용이 없습니다.');
             return;
         }
+        const dataToSend = {
+            ...formData,
+            userId: userId
+        }
 
         try{
-            const result = await updateUserMutation.mutateAsync(formData)
+            const result = await updateUserMutation.mutateAsync(dataToSend);
 
-            if(result.resultCode === 200){
-                alert("회원정보가 수정되었습니다");
+            if(result.resultCode === "200"){
                 navigate(`/user/profile`);
             } else {
                 alert("수정에 실패했습니다");
@@ -87,7 +95,7 @@ const UserProfileUpdate = () => {
                 <div className={style.formGroup}>
                     <div className={style.label}>아이디 (ID)</div>
                     <div className={style.readOnlyField} style={{ backgroundColor: 'var(--color-background-primary)' }}>
-                        {userData?.userId || 'N/A'}
+                        {userId || 'N/A'}
                     </div>
                 </div>
 
@@ -113,32 +121,32 @@ const UserProfileUpdate = () => {
                     {errors.name && <p className={style.errorMessage}>{errors.name.message}</p>}
                 </div>
 
-                <div className={style.formGroup}>
-                    <div className={style.label}>성별</div>
-                    <div className={style.radioGroup}>
-                        <label htmlFor="gender_male" className={style.radioLabel}>
-                            <input
-                                id="gender_male"
-                                type="radio"
-                                value="male"
-                                className={style.radioInput}
-                                {...register("gender")}
-                            />
-                            남성
-                        </label>
-                        <label htmlFor="gender_female" className={style.radioLabel}>
-                            <input
-                                id="gender_female"
-                                type="radio"
-                                value="female"
-                                className={style.radioInput}
-                                {...register("gender")}
-                            />
-                            여성
-                        </label>
-                    </div>
-                    {errors.gender && <p className={style.errorMessage} style={{ marginTop: '5px' }}>{errors.gender.message}</p>}
-                </div>
+                {/*<div className={style.formGroup}>*/}
+                {/*    <div className={style.label}>성별</div>*/}
+                {/*    <div className={style.radioGroup}>*/}
+                {/*        <label htmlFor="gender_male" className={style.radioLabel}>*/}
+                {/*            <input*/}
+                {/*                id="gender_male"*/}
+                {/*                type="radio"*/}
+                {/*                value="male"*/}
+                {/*                className={style.radioInput}*/}
+                {/*                {...register("gender")}*/}
+                {/*            />*/}
+                {/*            남성*/}
+                {/*        </label>*/}
+                {/*        <label htmlFor="gender_female" className={style.radioLabel}>*/}
+                {/*            <input*/}
+                {/*                id="gender_female"*/}
+                {/*                type="radio"*/}
+                {/*                value="female"*/}
+                {/*                className={style.radioInput}*/}
+                {/*                {...register("gender")}*/}
+                {/*            />*/}
+                {/*            여성*/}
+                {/*        </label>*/}
+                {/*    </div>*/}
+                {/*    {errors.gender && <p className={style.errorMessage} style={{ marginTop: '5px' }}>{errors.gender.message}</p>}*/}
+                {/*</div>*/}
 
                 <div className={style.formGroup}>
                     <label htmlFor="email" className={style.label}>이메일</label>
@@ -164,13 +172,13 @@ const UserProfileUpdate = () => {
                 </div>
 
                 <div className={style.formGroup}>
-                    <label htmlFor="bank" className={style.label}>은행</label>
+                    <label htmlFor="bankName" className={style.label}>은행</label>
                     <input
-                        id="bank"
+                        id="bankName"
                         type="text"
                         className={style.inputField}
                         placeholder="은행명"
-                        {...register("bank")}
+                        {...register("bankName")}
                     />
                 </div>
 
@@ -184,6 +192,17 @@ const UserProfileUpdate = () => {
                         {...register("accountNumber")}
                     />
                     {errors.accountNumber && <p className={style.errorMessage}>{errors.accountNumber.message}</p>}
+                </div>
+
+                <div className={style.formGroup}>
+                    <label htmlFor="accountHolder" className={style.label}>예금주</label>
+                    <input
+                        id="accountHolder"
+                        type="text"
+                        className={style.inputField}
+                        placeholder="예금주"
+                        {...register("accountHolder")}
+                    />
                 </div>
 
                 <div className={style.buttonGroup} style={{ justifyContent: 'flex-end', marginTop: '30px' }}>

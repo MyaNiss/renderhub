@@ -15,7 +15,7 @@ const BoardDetail = () => {
     const {deleteBoardMutation} = useBoard();
 
     const {
-        data : board, isLoading
+        data : board, isLoading, isError
     } = useGetBoardDetail(boardId);
 
     const moveToEdit = () => {
@@ -34,7 +34,7 @@ const BoardDetail = () => {
         try{
             const result = await deleteBoardMutation.mutateAsync(boardId);
 
-            if(result.resultCode === 200) {
+            if(result.resultCode === "200") {
                 console.log('게시글이 삭제되었습니다');
                 moveToList();
             } else {
@@ -55,7 +55,15 @@ const BoardDetail = () => {
         )
     }
 
-    const isAuthor = board.writer === currentUserId;
+    if (!board) {
+        return <div className={style.container}>
+            <div className={`${style.section} ${style.textCenter}`}>
+                <h2 className={style.header}>게시글 정보를 찾을 수 없습니다</h2>
+            </div>
+        </div>
+    }
+
+    const isAuthor = board.writer.userId === currentUserId;
 
     return (
         <div className={style.container}>
@@ -66,16 +74,16 @@ const BoardDetail = () => {
                 <div className={style.formGroup}>
                     <h1 className={style.detailTitle}>{board.title}</h1>
                     <div className={style.detailMetaContainer}>
-                        <span>작성자 : <span className={style.detailMetaText}>{board.writer}</span> </span>
-                        <span>등록일 : <span className={style.detailMetaText}>{board.createDate}</span> </span>
-                        <span>수정일 : <span className={style.detailMetaText}>{board.updateDate}</span> </span>
+                        <span>작성자 : <span className={style.detailMetaText}>{board.writer.userId}</span> </span>
+                        <span>등록일 : <span className={style.detailMetaText}>{board.createdAt}</span> </span>
+                        <span>수정일 : <span className={style.detailMetaText}>{board.updatedAt}</span> </span>
                     </div>
                 </div>
 
                 <div className={style.formGroup}>
                     <label>내용</label>
                     <div className={style.detailContentsArea}>
-                        <div dangerouslySetInnerHTML={{__html: board.contents}}></div>
+                        <div dangerouslySetInnerHTML={{__html: board.content}}></div>
                     </div>
                 </div>
 

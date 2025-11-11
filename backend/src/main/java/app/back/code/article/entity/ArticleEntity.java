@@ -40,7 +40,7 @@ public class ArticleEntity extends BaseEntity {
     private CategoryEntity category;
 
     @Lob
-    @Column(name = "content", nullable = false)
+    @Column(name = "content", columnDefinition = "TEXT", nullable = false)
     private String content;
 
     @Column(name = "is_secret", nullable = false)

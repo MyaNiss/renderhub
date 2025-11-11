@@ -1,7 +1,7 @@
 package app.back.code.post.service;
 
-import app.back.code.article.repository.CategoryRepository;
 import app.back.code.common.entity.CategoryEntity;
+import app.back.code.common.repository.CategoryRepository;
 import app.back.code.file.entity.FileEntity;
 import app.back.code.file.repository.FileRepository;
 import app.back.code.file.service.FileService;
@@ -15,7 +15,9 @@ import app.back.code.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -37,26 +39,24 @@ public class PostService {
     private final TransactionHistoryRepository transactionHistoryRepository;
 
     //3D 게시물 검색
-    public Page<PostDTO> getPostList(List<Long> categoryIds, List<Long> fileTypeIds, Pageable pageable) {
+    public Page<PostDTO> getPostList(List<Long> categoryIds, List<Long> fileTypeIds, String keyword, Pageable pageable) {
+
+        List<Long> finalCategoryIds = (categoryIds == null || categoryIds.isEmpty())
+                ? java.util.Collections.emptyList()
+                : categoryIds;
+
+        List<Long> finalFileTypeIds = (fileTypeIds == null || fileTypeIds.isEmpty())
+                ? java.util.Collections.emptyList()
+                : fileTypeIds;
+
         Page<PostEntity> posts;
 
-        // 1. categoryIds와 fileTypeIds 둘 다 존재할 때
-        if (categoryIds != null && !categoryIds.isEmpty()
-                && fileTypeIds != null && !fileTypeIds.isEmpty()) {
-            posts = postRepository.findByCategory_CategoryIdInAndFileType_CategoryIdIn(categoryIds, fileTypeIds, pageable);
-        }
-        // 2. categoryIds만 있을 때
-        else if (categoryIds != null && !categoryIds.isEmpty()) {
-            posts = postRepository.findByCategory_CategoryIdIn(categoryIds, pageable);
-        }
-        // 3. fileTypeIds만 있을 때
-        else if (fileTypeIds != null && !fileTypeIds.isEmpty()) {
-            posts = postRepository.findByFileType_CategoryIdIn(fileTypeIds, pageable);
-        }
-        // 4. 아무것도 없을 때
-        else {
-            posts = postRepository.findAll(pageable);
-        }
+            posts = postRepository.findPostListByFiltersAndKeyword(
+                    finalCategoryIds,
+                    finalFileTypeIds,
+                    keyword,
+                    pageable
+            );
 
         return posts.map(PostDTO::fromEntity);
     }
@@ -138,20 +138,7 @@ public class PostService {
 
         PostDTO baseDTO = PostDTO.fromEntity(post);
 
-        return PostDTO.builder()
-                .postId(baseDTO.getPostId())
-                .writer(baseDTO.getWriter())
-                .price(baseDTO.getPrice())
-                .viewCount(baseDTO.getViewCount())
-                .purchaseCount(baseDTO.getPurchaseCount())
-                .createdAt(baseDTO.getCreatedAt())
-                .updatedAt(baseDTO.getUpdatedAt())
-                .deletedAt(baseDTO.getDeletedAt())
-                .isDeleted(baseDTO.getIsDeleted())
-                .title(baseDTO.getTitle())
-                .content(baseDTO.getContent())
-                .categoryId(baseDTO.getCategoryId())
-                .fileTypeId(baseDTO.getFileTypeId())
+        return baseDTO.toBuilder()
                 .imageUrls(imageUrls)
                 .productFileName(productFileName)
                 .productFileUrl(productFileUrl)
@@ -160,11 +147,15 @@ public class PostService {
     }
 
     @Transactional
-    public PostDTO updatePost(Long postId, PostDTO request,  String userId, List<MultipartFile> imageFiles, MultipartFile productFile) {
+    public PostDTO updatePost(Long postId, PostDTO request, String userId, List<MultipartFile> imageFiles, MultipartFile productFile) {
         PostEntity post = postRepository.findById(postId).orElseThrow(() -> new EntityNotFoundException("게시글을 찾을 수 없습니다"));
 
         if(!post.getWriter().getUserId().equals(userId)){
             throw new IllegalArgumentException("게시글 수정 권한이 없습니다");
+        }
+
+        if(!request.isKeepExistingFile() && (productFile == null || productFile.isEmpty())){
+            throw new IllegalArgumentException("제품 파일은 필수로 등록해야합니다.");
         }
 
         post.update(
@@ -173,9 +164,18 @@ public class PostService {
              request.getPrice()
         );
 
+        if (!post.getCategory().getCategoryId().equals(request.getCategoryId())) {
+            CategoryEntity newCategory = categoryRepository.findById(request.getCategoryId()).orElseThrow(() -> new EntityNotFoundException("카테고리를 찾을 수 없습니다"));
+            post.setCategory(newCategory);
+        }
+        if (!post.getFileType().getCategoryId().equals(request.getFileTypeId())) {
+            CategoryEntity newFileType = categoryRepository.findById(request.getFileTypeId()).orElseThrow(() -> new EntityNotFoundException("파일형식을 찾을 수 없습니다"));
+            post.setFileType(newFileType);
+        }
+
         final String subDirName = post.getFileType().getName().toUpperCase();
 
-        fileService.replacePostFiles(post, imageFiles, productFile, subDirName);
+        fileService.replacePostFiles(post, request.getImageUrls(), request.isKeepExistingFile(), imageFiles, productFile, subDirName);
 
         return PostDTO.fromEntity(post);
     }
@@ -189,7 +189,16 @@ public class PostService {
         }
 
         post.delete();
+
     }
 
 
+    @Transactional(readOnly = true)
+    public List<PostDTO> getTopPurchasedItems(int limit) {
+        PageRequest pageRequest = PageRequest.of(0, limit, Sort.by("purchaseCount").descending());
+
+        List<PostEntity> topPosts = postRepository.findAll(pageRequest).getContent();
+
+        return topPosts.stream().map(PostDTO::fromEntity).collect(Collectors.toList());
+    }
 }

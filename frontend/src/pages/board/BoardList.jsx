@@ -4,12 +4,15 @@ import {useQuery} from "@tanstack/react-query";
 import {boardAPI} from "../../service/boardService.jsx";
 import Pagination from "../../components/Pagination.jsx";
 import style from "../../assets/css/board.common.module.css";
-import {BOARD_CATEGORIES} from "../../utils/constants/boardCategories.jsx";
+import {useCategories} from "../../customHook/useCategories.jsx";
+import {CATEGORY_TYPES} from "../../utils/constants/categoryTypes.js";
 
 const BoardList = () => {
 
     const [page, setPage] = useState(0);
     const [selectedCategories, setSelectedCategories] = useState(['all']);
+
+    const { categories } = useCategories(CATEGORY_TYPES.BOARD);
 
     const resetPagesAndSetCategories = (newCategories) => {
         setPage(0);
@@ -20,11 +23,14 @@ const BoardList = () => {
 
     const {isLoading, data, error} = useQuery({
         queryKey:['boardList', page, selectedCategories],
-        queryFn: () => boardAPI.getBoardList(page, categoriesToSend)
+        queryFn: () => boardAPI.getBoardList(
+            page,
+            categoriesToSend
+        )
     })
 
-    const boardList = data?.data || [];
-    const totalRows = data?.total || 0;
+    const boardList = data?.content || [];
+    const totalRows = data?.totalElements || 0;
 
     const navigate = useNavigate();
 
@@ -37,7 +43,7 @@ const BoardList = () => {
     }
 
     //카테고리 선택 핸들러
-    const handleCategoryClick = (categoryValue) => {
+    const handleCategoryClick = (categoryId) => {
 
         let newCategories = [...selectedCategories];
 
@@ -46,10 +52,10 @@ const BoardList = () => {
             newCategories.splice(allIndex, 1);
         }
 
-        const isSelected = selectedCategories.includes(categoryValue);
+        const isSelected = selectedCategories.includes(categoryId);
 
         if(isSelected) {
-            const filteredCategories = newCategories.filter(category => category !== categoryValue);
+            const filteredCategories = newCategories.filter(category => category !== categoryId);
 
             if(filteredCategories.length === 0){
                 resetPagesAndSetCategories(['all']);
@@ -57,7 +63,7 @@ const BoardList = () => {
                 resetPagesAndSetCategories(filteredCategories);
             }
         } else {
-            newCategories.push(categoryValue);
+            newCategories.push(categoryId);
             resetPagesAndSetCategories(newCategories);
         }
     }
@@ -77,17 +83,17 @@ const BoardList = () => {
                             전체
                         </button>
 
-                        {BOARD_CATEGORIES.map(category => (
+                        {categories.map(category => (
                             <button
-                                key={category.value}
+                                key={category.id}
                                 className={`${style.button} ${
-                                    !selectedCategories.includes('all') && selectedCategories.includes(category.value)
+                                    !selectedCategories.includes('all') && selectedCategories.includes(category.id)
                                         ? style.buttonPrimary
                                         : style.buttonOutline
                                 }`}
-                                onClick={() => handleCategoryClick(category.value)}
+                                onClick={() => handleCategoryClick(category.id)}
                             >
-                                {category.label}
+                                {category.name}
                             </button>
                         ))}
                     </div>
@@ -103,7 +109,8 @@ const BoardList = () => {
                 <table className={style.table}>
                     <colgroup>
                         <col style={{ width: '10%' }} />
-                        <col style={{ width: '40%' }} />
+                        <col style={{ width: '10%' }} />
+                        <col style={{ width: '30%' }} />
                         <col style={{ width: '15%' }} />
                         <col style={{ width: '10%' }} />
                         <col style={{ width: '25%' }} />
@@ -111,6 +118,7 @@ const BoardList = () => {
                     <thead>
                     <tr>
                         <th>글번호</th>
+                        <th>카테고리</th>
                         <th>글 제목</th>
                         <th>작성자</th>
                         <th>조회 수</th>
@@ -120,17 +128,18 @@ const BoardList = () => {
                     <tbody>
                     {boardList.length > 0 ? (
                         boardList.map((board) => (
-                            <tr key={board.id}>
-                                <td>{board.id}</td>
+                            <tr key={board.articleId}>
+                                <td>{board.articleId}</td>
+                                <td>{board.categoryName}</td>
                                 <td>
                                     <a href="#!" onClick={(e) => {
                                         e.preventDefault();
-                                        navigate(`/board/${board.id}`);
+                                        navigate(`/board/${board.articleId}`);
                                     }}>
                                         {board.title}
                                     </a>
                                 </td>
-                                <td>{board.writer}</td>
+                                <td>{board.writer.nickname}</td>
                                 <td>{board.viewCount}</td>
                                 <td>{board.updatedAt
                                     ? new Date(board.updatedAt).toLocaleTimeString('ko-KR', {
